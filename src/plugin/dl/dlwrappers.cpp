@@ -68,7 +68,9 @@ extern "C"
 void *dlopen(const char *filename, int flag)
 {
   bool lockAcquired = dmtcp_libdlLockLock();
-  if (strstr(filename, "libcuda") != NULL) {
+  if (filename == NULL) {
+      JNOTE("dlopen NULL!") (filename) (flag);
+  } else if (strstr(filename, "libcuda") != NULL) {
     JWARNING(false) (filename) (flag);
     // filename = "/home/twinkle/proj_rpc/cuda_backup/dmtcp-cuda-split/contrib/split-cuda/libcuda_wrappers.so";
     filename = NULL;
@@ -78,7 +80,7 @@ void *dlopen(const char *filename, int flag)
   if (lockAcquired) {
     dmtcp_libdlLockUnlock();
   }
-  JWARNING(false) (filename) (flag);
+  JWARNING(false) (filename) (flag) ("upper half dlopen!");
   JWARNING(ret) (filename) (flag)
     .Text("dlopen failed!\n"
           "You may also see a message 'ERROR: ld.so:'\n from libdl.so.\n"

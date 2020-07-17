@@ -28,6 +28,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <jassert.h>
+
 
 #include "common.h"
 #include "upper-half-wrappers.h"
@@ -64,7 +66,8 @@ mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
     lowerHalfMmapWrapper = (__typeof__(&mmap))lhInfo.lhMmap;
   }
   // TODO: Switch fs context
-  return lowerHalfMmapWrapper(addr, length, prot, flags, fd, offset);
+  void *ret = lowerHalfMmapWrapper(addr, length, prot, flags, fd, offset);
+    return ret;
 }
 
 int

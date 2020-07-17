@@ -26,6 +26,8 @@ main(int argc, char **argv)
   rc = cudaMalloc(&cuda_ptr2, 43*sizeof(char));
   printf("cudaMalloc returned: %d, cuda_ptr2: %p\n", (int)rc, cuda_ptr2);
 
+    sleep(10);  // give enough time to checkpoint
+
   rc = cudaMalloc(&cuda_ptr3, 1025*sizeof(char));
   printf("cudaMalloc returned: %d, cuda_ptr3: %p\n", (int)rc, cuda_ptr3);
 

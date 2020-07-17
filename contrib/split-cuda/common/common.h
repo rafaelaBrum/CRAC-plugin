@@ -30,15 +30,8 @@
 #include <linux/limits.h>
 #include <sys/prctl.h>
 #include <sys/syscall.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
-#include <driver_types.h>
-#include <cusparse_v2.h>
-#include <cublas.h>
-#include <cusolverDn.h>
 
-#include "lower_half_cuda_if.h"
+#include "lower_half_opengl_if.h"
 typedef char* VA;  /* VA = virtual address */
 
 // Based on the entries in /proc/<pid>/stat as described in `man 5 proc`
@@ -113,10 +106,10 @@ extern UpperHalfInfo_t uhInfo;
 #ifdef __cplusplus
 extern "C" {
 #endif
-void* lhDlsym(Cuda_Fncs_t type);
+void* lhDlsym(GL_Fncs_t type);
 #ifdef __cplusplus
 }
 #endif
-typedef void* (*LhDlsym_t)(Cuda_Fncs_t type);
+typedef void* (*LhDlsym_t)(GL_Fncs_t type);
 
 #endif // ifndef COMMON_H

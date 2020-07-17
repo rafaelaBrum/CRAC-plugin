@@ -624,6 +624,7 @@ restorememoryareas(RestoreInfo *rinfo_ptr)
                 "    (gdb) info proc mapping\n"
                 "    (gdb) add-symbol-file ../../bin/mtcp_restart %p\n",
                 rinfo_ptr->mtcp_restart_text_addr);
+      {int x = 1; while (x) {}}
 
 #if defined(__i386__) || defined(__x86_64__)
     asm volatile ("int3"); // Do breakpoint; send SIGTRAP, caught by gdb
@@ -810,7 +811,7 @@ unmap_memory_areas_and_restore_vdso(RestoreInfo *rinfo)
   }
 
   if (vdsoEnd - vdsoStart != rinfo->vdsoEnd - rinfo->vdsoStart) {
-    MTCP_PRINTF("***Error: vdso size mismatch.\n");
+    MTCP_PRINTF("***Error: vdso size mismatch. %p %p %p %p\n", vdsoEnd, vdsoStart, rinfo->vdsoEnd, rinfo->vdsoStart);
     mtcp_abort();
   }
 

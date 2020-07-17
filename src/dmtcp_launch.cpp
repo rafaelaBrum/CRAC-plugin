@@ -550,7 +550,7 @@ main(int argc, char **argv)
     setenv("ORIG_DISPLAY", getenv("DISPLAY"), 1);
 
     // UNSET DISPLAY environment variable.
-    unsetenv("DISPLAY");
+    //unsetenv("DISPLAY");
   }
 
   // Unset SESSION_MANAGER environment variable. SESSION_MANAGER is used by the

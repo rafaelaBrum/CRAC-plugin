@@ -23,6 +23,8 @@ int main(int argc, char **argv)
 	printf("Hey\n");
 	fflush(stdout);
 	cudaMallocManaged(&cuda_c, sizeof(int));
+	printf("hi %p\n", cuda_c);
+    fflush(stdout);
 	add<<<1,1>>>(a, b, cuda_c);
 	cudaError_t ret = cudaMemcpy(&c, cuda_c, sizeof(int), cudaMemcpyDeviceToHost);
 	 printf("device 1: %d \n", *cuda_c);

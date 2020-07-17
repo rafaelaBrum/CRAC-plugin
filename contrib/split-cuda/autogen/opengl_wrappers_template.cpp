@@ -1,5 +1,9 @@
 #include <GL/gl.h>
+#include <GL/glx.h>
+#include <GL/glxext.h>
 #include <jassert.h>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
 #include "dmtcp.h"
 #include "switch_context.h"
 #include "lower_half_opengl_if.h"
@@ -26,13 +30,20 @@
 
 {% for opengl_func in opengl_funcs %}
 #undef {{opengl_func.name}}
-extern "C" {{opengl_func.return_type}} {{opengl_func.name}}({{opengl_func.args_sig}}) {
-    typedef {{opengl_func.return_type}} (*{{opengl_func.name}}_t)({{opengl_func.args_sig}});
+extern "C"
+{{opengl_func.return_type}} {{opengl_func.name}}({{opengl_func.args_sig}}) {
+    typedef {{opengl_func.return_type}}
+        (*{{opengl_func.name}}_t)({{opengl_func.args_sig}});
     {% if opengl_func.return_type != 'void' %}
         {{ opengl_func.return_type }} ret;
     {% endif %}
     DMTCP_PLUGIN_DISABLE_CKPT();
-    JNOTE("Wrapper called for {{opengl_func.name}}");
+    {% if False %}
+    JNOTE("Wrapper called for {{opengl_func.name}}")
+    {% for arg_name in opengl_func.arg_name_list %}
+        ({{arg_name}})
+    {% endfor %};
+    {% endif %}
     JUMP_TO_LOWER_HALF(lhInfo.lhFsAddr);
     {{opengl_func.name}}_t real_fnc = REAL_FNC({{opengl_func.name}});
     {% if opengl_func.return_type != 'void' %}
@@ -42,11 +53,10 @@ extern "C" {{opengl_func.return_type}} {{opengl_func.name}}({{opengl_func.args_s
     RETURN_TO_UPPER_HALF();
     /* Insert logging code here */
     DMTCP_PLUGIN_ENABLE_CKPT();
-    JNOTE("Wrapper finished for {{opengl_func.name}}");
     {% if opengl_func.return_type != 'void' %}
+    // JNOTE("Wrapper finished for {{opengl_func.name}}") (ret);
     return ret;
     {% endif %}
-
 }
 
 {% endfor %}

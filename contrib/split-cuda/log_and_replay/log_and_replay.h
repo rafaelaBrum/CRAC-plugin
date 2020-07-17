@@ -24,7 +24,7 @@
 
 #include <map>
 #include <vector>
-#include "lower_half_cuda_if.h"
+#include "lower_half_opengl_if.h"
 #include "common.h"
 
 // enum for types
@@ -42,7 +42,7 @@ typedef struct Lhckpt_pages_t {
   size_t mem_len;
 }lhckpt_pages_t;
 
-void logAPI(Cuda_Fncs_t cuda_fnc, ...);
+void logAPI(GL_Fncs_t cuda_fnc, ...);
 void replayAPI(CudaCallLog_t *l);
 void logs_read_and_apply();
 void disableLogging();

@@ -1,6 +1,6 @@
 # NOTE: Update the following variables for your system
-CC=/usr/bin/gcc-8
-CXX=/usr/bin/g++-8
+CC=/opt/rh/devtoolset-8/root/usr/bin/gcc
+CXX=/opt/rh/devtoolset-8/root/usr/bin/g++
 NVCC=/usr/local/cuda/bin/nvcc
 LD=${CXX}
 RTLD_PATH=/lib64/ld-linux-x86-64.so.2
@@ -36,7 +36,7 @@ SPLIT_CUDA_INCLUDE_FLAGS=-I${DMTCP_ROOT}/contrib/split-cuda/common \
 
 INCLUDE_FLAGS=-I. -I${CUDA_INCLUDE_PATH} -I${DMTCP_INCLUDE} -I${JALIB_INCLUDE} \
               ${SPLIT_CUDA_INCLUDE_FLAGS}
-WARNING_FLAGS=-Wall -Wno-deprecated-declarations -Werror
+WARNING_FLAGS=-Wall -Wno-deprecated-declarations
 
 override CFLAGS += -g3 -O0 -fPIC ${INCLUDE_FLAGS} -c -std=gnu11 \
                 ${WARNING_FLAGS} -fno-stack-protector
@@ -45,8 +45,8 @@ override CXXFLAGS += -g3 -O0 -fPIC ${INCLUDE_FLAGS} -c -std=c++11 \
 
 # variables related to kernel loader
 KERNEL_LOADER_OBJS=lh/kernel-loader.o utils/procmapsutils.o lh/custom-loader.o \
-		   lh/mmap-wrapper.o lh/sbrk-wrapper.o lh/cuda-lh-if.o utils/utils.o \
-		   utils/trampoline_setup.o lh/mem-restore.o lh/replay_cuda_calls.o \
+		   lh/mmap-wrapper.o lh/sbrk-wrapper.o lh/opengl-lh-if.o utils/utils.o \
+		   utils/trampoline_setup.o lh/mem-restore.o \
        uh/switch_context.o
 
 KERNEL_LOADER_CFLAGS=-DSTANDALONE
@@ -57,7 +57,7 @@ TARGET_OBJS=target.o
 TARGET_BIN=target.dummy.exe
 
 # variables related to autogen code
-AUTOGEN_OBJS=autogen/cuda_autogen_wrappers.o
+AUTOGEN_OBJS=
 
 
 # variables related to stub library which should be linked with user's cuda-
@@ -67,13 +67,13 @@ WRAPPER_LIB_OBJS=cuda_stub_lib/cuda_stub.o
 # variables related to dmtcp's cuda-plugin (upper-half)
 UTILITY_OBJS=utils/procmapsutils.o utils/utils.o \
         utils/trampoline_setup.o
-PLUGIN_LIB_OBJS=${AUTOGEN_OBJS} ${UTILITY_OBJS}  \
+PLUGIN_LIB_OBJS=${AUTOGEN_OBJS} autogen/opengl_wrappers.o ${UTILITY_OBJS}  \
                 uh/upper-half-wrappers.o uh/cuda-plugin.o \
                 log_and_replay/log_cuda_api.o uh/switch_context.o
 
 #variables for make check
 DMTCP_LAUNCH=${DMTCP_ROOT}/bin/dmtcp_launch
-DMTCP_LAUNCH_FLAGS=--new-coordinator --cuda --kernel-loader \
+DMTCP_LAUNCH_FLAGS=--join-coordinator --cuda --kernel-loader \
 		   $$PWD/${KERNEL_LOADER_BIN} --target-ld ${RTLD_PATH} \
 		   --with-plugin $$PWD/${LIBNAME}.so
 
@@ -128,7 +128,7 @@ ${TARGET_BIN}: ${TARGET_OBJS}
 # to link the kernel loader (which is really just emulating the lower
 # half) to a fixed address (0x800000)
 ${KERNEL_LOADER_BIN}: ${KERNEL_LOADER_OBJS}
-	${NVCC} ${NVCC_FLAGS} $^ -o $@ -lcuda -ldl -lcublas -lcusparse -lcusolver
+	${CXX} -g3 -O0 $^ -o $@ -ldl -lGL -lX11 -lXext -Xlinker -Ttext-segment -Xlinker 0x800000
 
 vi vim:
 	vim ${FILE}.cpp

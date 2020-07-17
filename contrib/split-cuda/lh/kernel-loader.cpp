@@ -186,7 +186,7 @@ main(int argc, char *argv[], char **environ)
     */
     restoreCheckpointImg(ckptFd);
     readUhInfoAddr();
-    logs_read_and_apply();
+    //logs_read_and_apply();
     copy_lower_half_data();
     returnTodmtcp();
     // Following line should not be reached.
@@ -471,7 +471,7 @@ printf("newStack: %lu newStackOffset: %lu newStackEnd: %lu \n", (unsigned long)n
 static void*
 createNewHeapForRtld(const DynObjInfo_t *info)
 {
-  const uint64_t heapSize = 100 * PAGE_SIZE;
+  const uint64_t heapSize = 10000 * PAGE_SIZE;
 
   // We go through the mmap wrapper function to ensure that this gets added
   // to the list of upper half regions to be checkpointed.
@@ -600,7 +600,7 @@ copy_lower_half_data() {
     memcpy(&lhpage_info, ((VA)lhpages_addr+count), sizeof (lhpage_info));
     count += sizeof(lhpage_info);
 
-    void *dest_addr = lhpage_info.mem_addr;
+    //void *dest_addr = lhpage_info.mem_addr;
     size_t size = lhpage_info.mem_len;
 
     switch (lhpage_info.mem_type) {
@@ -608,7 +608,7 @@ copy_lower_half_data() {
       case (CUDA_MALLOC_PAGE):
       {
         // copy back the actual data
-        cudaMemcpy(dest_addr, ((VA)lhpages_addr+count), size, cudaMemcpyHostToDevice);
+        //cudaMemcpy(dest_addr, ((VA)lhpages_addr+count), size, cudaMemcpyHostToDevice);
         count += size;
         break;
       }

@@ -11,7 +11,7 @@ WRAPPER_LIB=cuda_wrappers
 
 INCLUDE_FLAGS= -I/home/twinkle/mpich-install/include
 WARNING_FLAGS=-Wall -Wno-deprecated-declarations -Werror
-NVCC_FLAGS=-ccbin=/usr/bin/g++-7 -Xcompiler '-g3 -O0 $(WARNING_FLAGS)'
+NVCC_FLAGS=-ccbin=/usr/bin/g++ -Xcompiler '-g3 -O0 $(WARNING_FLAGS)'
 
 FILES=simple_addition malloc_across_kernel read_device_var read_uvm_var \
       rw_device_var rw_dev_array texture_test uvm_var uvm_args \

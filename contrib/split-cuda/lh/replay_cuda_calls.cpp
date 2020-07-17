@@ -27,6 +27,7 @@
 #include <cublas.h>
 #include <assert.h>
 #include <stdio.h>
+#include "upper-half-cuda-wrappers.h"
 
 #include "getmmap.h"
 #include "common.h"
@@ -208,6 +209,7 @@ void replayAPI(CudaCallLog_t *l)
       printf("\n old fatcubinhandle = %p\n", oldRes);
       printf("fatcubinhandle = %p\n", newRes);
       new_fatCubinHandle = newRes;
+      global_fatCubin = new_fatCubinHandle;
       // JASSERT(memcmp(&oldRes, *newRes, sizeof(*newRes))!= 0)
       //   .Text("old and new results are not same!");
       break;
@@ -932,70 +934,6 @@ void replayAPI(CudaCallLog_t *l)
       memcpy(&handle, l->fncargs + chars_read, sizeof(handle));
       chars_read += sizeof(handle);
       cublasDestroy_v2(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseCreate):
-    {
-      cusparseHandle_t *handle;
-      memcpy(&handle, l->fncargs + chars_read, sizeof(handle));
-      chars_read += sizeof(handle);
-      cusparseCreate(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseDestroy):
-    {
-      cusparseHandle_t handle;
-      memcpy(&handle, l->fncargs + chars_read, sizeof(handle));
-      chars_read += sizeof(handle);
-      cusparseDestroy(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseCreateMatDescr):
-    {
-      cusparseMatDescr_t *handle;
-      memcpy(&handle, l->fncargs + chars_read, sizeof(handle));
-      chars_read += sizeof(handle);
-      cusparseCreateMatDescr(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseDestroyMatDescr):
-    {
-      cusparseMatDescr_t handle;
-      memcpy(&handle, l->fncargs + chars_read, sizeof(handle));
-      chars_read += sizeof(handle);
-      cusparseDestroyMatDescr(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseCreateHybMat):
-    {
-      cusparseHybMat_t *handle;
-      memcpy(&handle, l->fncargs + chars_read, sizeof(handle));
-      chars_read += sizeof(handle);
-      cusparseCreateHybMat(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseDestroyHybMat):
-    {
-      cusparseHybMat_t handle;
-      memcpy(&handle, l->fncargs + chars_read, sizeof(handle));
-      chars_read += sizeof(handle);
-      cusparseDestroyHybMat(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseCreateSolveAnalysisInfo):
-    {
-      cusparseSolveAnalysisInfo_t *info;
-      memcpy(&info, l->fncargs + chars_read, sizeof(info));
-      chars_read += sizeof(info);
-      cusparseCreateSolveAnalysisInfo(info);
-      break;
-    }
-    case GENERATE_ENUM(cusparseDestroySolveAnalysisInfo):
-    {
-      cusparseSolveAnalysisInfo_t info;
-      memcpy(&info, l->fncargs + chars_read, sizeof(info));
-      chars_read += sizeof(info);
-      cusparseDestroySolveAnalysisInfo(info);
       break;
     }
     case GENERATE_ENUM(cusolverDnCreate):

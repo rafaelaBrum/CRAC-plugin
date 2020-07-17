@@ -256,6 +256,8 @@ bool isMergeable(MmapInfo_t first, MmapInfo_t second) {
 void getAndMergeUhMaps()
 {
   if (lhInfo.lhMmapListFptr && fnc == NULL) {
+      merged_uhmaps.clear();
+
     fnc = (GetMmappedListFptr_t) lhInfo.lhMmapListFptr;
     int numUhRegions = 0;
     std::vector<MmapInfo_t> uh_mmaps = fnc(&numUhRegions);
@@ -298,9 +300,6 @@ dmtcp_skip_memory_region_ckpting(ProcMapsArea *area, int fd, int stack_was_seen)
     strstr(area->name, DEV_NVIDIA_STR)) {
     return rc; // skip this region
   }
-
-  // get and merge uh maps
-  getAndMergeUhMaps();
 
   // smaller than smallest uhmaps or greater than largest address
   if ((area->endAddr < merged_uhmaps[0].addr) || \
@@ -452,7 +451,8 @@ void save_lh_pages_to_memory()
       don't see many entries in /proc/pid/maps file even if the perms are same.
     */
     for (auto lh_page : lh_pages_maps) {
-      void *mem_addr = lh_page.second.mem_addr;
+        JNOTE("lol") (lh_page.second.mem_addr);
+      //void *mem_addr = lh_page.second.mem_addr;
       size_t mem_len = lh_page.second.mem_len;
       // copy the metadata and data to the new mmap'ed region
       void * dest = memcpy(((VA)addr + count), (void *)&lh_page.second,
@@ -465,8 +465,8 @@ void save_lh_pages_to_memory()
         case (CUDA_MALLOC_PAGE):
         case (CUDA_UVM_PAGE):
         {
-          cudaMemcpy(((VA)addr + count), mem_addr, mem_len, \
-                     cudaMemcpyDeviceToHost);
+          /*cudaMemcpy(((VA)addr + count), mem_addr, mem_len, \
+          cudaMemcpyDeviceToHost);*/
           break;
         } /*
         case (CUDA_HEAP_PAGE):
@@ -502,9 +502,10 @@ void pre_ckpt()
 {
   /**/
   disableLogging();
-  cudaDeviceSynchronize();
+  //cudaDeviceSynchronize();
   save_lh_pages_to_memory();
   enableLogging();
+  getAndMergeUhMaps();
 }
 
 // Writes out the lhinfo global object to a file. Returns 0 on success,

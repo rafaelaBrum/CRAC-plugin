@@ -1,0 +1,102 @@
+void glBegin(GLenum mode);
+void glCallList(GLuint list);
+void glClear(GLbitfield mask);
+void glEnable(GLenum cap);
+void glEnd();
+void glEndList();
+
+void glFrustum( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble nearVal, GLdouble farVal);
+
+GLuint glGenLists( GLsizei range);
+void glLightfv( GLenum light, GLenum pname, const GLfloat * params);
+
+void glLoadIdentity(void);
+void glMaterialfv(GLenum face, GLenum pname, const GLfloat * params);
+void glMatrixMode(GLenum mode);
+
+void glNewList(GLuint list, GLenum mode);
+
+void glNormal3f(GLfloat nx, GLfloat ny, GLfloat nz);
+
+void glPushMatrix(void);
+void glPopMatrix(void);
+
+void glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
+
+void glShadeModel(GLenum mode);
+
+void glTranslatef(GLfloat x, GLfloat y, GLfloat z);
+
+void glVertex3f(GLfloat x, GLfloat y, GLfloat z);
+
+void glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
+
+
+XVisualInfo* glXChooseVisual(Display * dpy,  int screen,  int * attribList);
+GLXContext glXCreateContext(Display * dpy,  XVisualInfo * vis,  GLXContext shareList,  Bool direct);
+void glXQueryDrawable(Display * dpy,  GLXDrawable draw,  int attribute,  unsigned int * value);
+const char * glXQueryExtensionsString(Display * dpy,  int screen);
+void glXSwapBuffers(Display * dpy,  GLXDrawable drawable);
+Bool glXMakeCurrent(Display * dpy,  GLXDrawable drawable,  GLXContext ctx);
+
+KeySym XLookupKeysym(XKeyEvent *key_event, int index);
+int XFree(void *data);
+
+Colormap XCreateColormap(
+      Display *display,
+      Window w,
+      Visual *visual,
+      int alloc
+);
+Window XCreateWindow(
+      Display *display,
+      Window parent,
+      int x,
+      int y,
+      unsigned int width,
+      unsigned int height,
+      unsigned int border_width,
+      int depth,
+      unsigned int cls,
+      Visual *visual,
+      unsigned long valuemask,
+      XSetWindowAttributes *attributes
+);
+
+
+int XLookupString(
+      XKeyEvent *event_struct,
+      char *buffer_return,
+      int bytes_buffer,
+      KeySym *keysym_return,
+      XComposeStatus *status_in_out
+);
+int XMapWindow(
+      Display *display,
+      Window w
+);
+int XNextEvent(
+      Display *display,
+      XEvent *event_return
+);
+Display *XOpenDisplay(
+      const char *display_name
+);
+int XPending(
+      Display *display
+);
+int XSetNormalHints(
+      Display *display,
+      Window w,
+      XSizeHints *hints
+);
+int XSetStandardProperties(
+      Display *display,
+      Window w,
+      const char *window_name,
+      const char *icon_name,
+      Pixmap icon_pixmap,
+      char **argv,
+      int argc,
+      XSizeHints *hints
+);

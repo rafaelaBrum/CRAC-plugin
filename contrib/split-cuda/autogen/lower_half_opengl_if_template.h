@@ -2,10 +2,14 @@
 #define LOWER_HALF_CUDA_IF_H
 
 #include <GL/gl.h>
+#include <GL/glx.h>
+#include <GL/glxext.h>
 
 
 #define FOREACH_FNC(MACRO) \
-MACRO(glBegin), \
+{% for func_name in func_names -%}
+MACRO({{func_name}}), \
+{% endfor %}
 
 #define GENERATE_ENUM(ENUM) GL_Fnc_##ENUM
 

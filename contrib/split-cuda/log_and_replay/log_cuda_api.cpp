@@ -98,9 +98,10 @@ isLoggingDisabled()
 // This function does in-memory logging of CUDA calls that are specified
 // using the @LogReplay decorator.
 void
-logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
+logAPI(GL_Fncs_t cuda_fnc_op, ...)
 {
-  if (isLoggingDisabled())
+    return;
+  /*if (isLoggingDisabled())
   {
     return;
   }
@@ -952,64 +953,6 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
       chars_wrote += sizeof(handle);
       break;
     }
-    case GENERATE_ENUM(cusparseCreate):
-    {
-      cusparseHandle_t *handle = va_arg(arglist, cusparseHandle_t *);
-      memcpy(buf + chars_wrote, &handle, sizeof(handle));
-      chars_wrote += sizeof(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseDestroy):
-    {
-      cusparseHandle_t handle = va_arg(arglist, cusparseHandle_t);
-      memcpy(buf + chars_wrote, &handle, sizeof(handle));
-      chars_wrote += sizeof(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseCreateMatDescr):
-    {
-      cusparseMatDescr_t *handle = va_arg(arglist, cusparseMatDescr_t *);
-      memcpy(buf + chars_wrote, &handle, sizeof(handle));
-      chars_wrote += sizeof(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseDestroyMatDescr):
-    {
-      cusparseMatDescr_t handle = va_arg(arglist, cusparseMatDescr_t );
-      memcpy(buf + chars_wrote, &handle, sizeof(handle));
-      chars_wrote += sizeof(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseCreateHybMat):
-    {
-      cusparseHybMat_t *handle = va_arg(arglist, cusparseHybMat_t *);
-      memcpy(buf + chars_wrote, &handle, sizeof(handle));
-      chars_wrote += sizeof(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseDestroyHybMat):
-    {
-      cusparseHybMat_t handle = va_arg(arglist, cusparseHybMat_t );
-      memcpy(buf + chars_wrote, &handle, sizeof(handle));
-      chars_wrote += sizeof(handle);
-      break;
-    }
-    case GENERATE_ENUM(cusparseCreateSolveAnalysisInfo):
-    {
-      cusparseSolveAnalysisInfo_t *info = va_arg(arglist,
-                                                 cusparseSolveAnalysisInfo_t *);
-      memcpy(buf + chars_wrote, &info, sizeof(info));
-      chars_wrote += sizeof(info);
-      break;
-    }
-    case GENERATE_ENUM(cusparseDestroySolveAnalysisInfo):
-    {
-      cusparseSolveAnalysisInfo_t info = va_arg(arglist,
-                                                 cusparseSolveAnalysisInfo_t);
-      memcpy(buf + chars_wrote, &info, sizeof(info));
-      chars_wrote += sizeof(info);
-      break;
-    }
     case GENERATE_ENUM(cusolverDnCreate):
     {
       cusolverDnHandle_t *handle = va_arg(arglist, cusolverDnHandle_t *);
@@ -1137,5 +1080,5 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
   memcpy(log.fncargs, buf, chars_wrote);
   log.size = chars_wrote;
   cudaCallsLog.push_back(log);
-  va_end(arglist);
+  va_end(arglist);*/
 }

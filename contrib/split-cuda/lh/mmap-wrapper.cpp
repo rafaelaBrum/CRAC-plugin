@@ -48,7 +48,7 @@ using namespace std;
 #define MMAP_OFF_MASK (MMAP_OFF_HIGH_MASK | MMAP_OFF_LOW_MASK)
 #define _real_mmap mmap
 #define _real_munmap munmap
-#define UBUNTU 1
+#define UBUNTU 0
 
 // TODO:
 //  1. Make the size of list dynamic
@@ -84,6 +84,7 @@ void*
 mmapWrapper(void *addr, size_t length, int prot,
             int flags, int fd, off_t offset)
 {
+    fflush(stdout);
   void *ret = MAP_FAILED;
   JUMP_TO_LOWER_HALF(lhInfo.lhFsAddr);
   ret = __mmapWrapper(addr, length, prot, flags, fd, offset);
@@ -169,7 +170,7 @@ patchLibc(int fd, const void *base, const char *glibc)
   off_t mmapOffset;
   off_t munmapOffset;
   off_t sbrkOffset;
-#ifdef UBUNTU
+#if UBUNTU
   char buf[256] = "/usr/lib/debug";
   buf[sizeof(buf)-1] = '\0';
   memcpy(buf+strlen(buf), glibc, strlen(glibc));
