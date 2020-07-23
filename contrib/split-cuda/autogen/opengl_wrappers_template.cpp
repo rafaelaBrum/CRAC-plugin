@@ -9,7 +9,7 @@
 #include "lower_half_opengl_if.h"
 #include "common.h"
 #include "upper-half-wrappers.h"
-#include "log_and_replay.h"
+#include "uh_logging.h"
 
 #define REAL_FNC(fnc) \
   ({ fnc##_t fnc##Fnc = (fnc##_t) -1; \

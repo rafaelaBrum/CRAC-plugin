@@ -19,7 +19,7 @@ add_executable(split-cuda
         utils/procmapsutils.c
         utils/trampoline_setup.cpp
         utils/utils.cpp
-        autogen/opengl_wrappers.cpp lh/opengl-lh-if.c log_and_replay/log_and_replay.cpp
+        autogen/opengl_wrappers.cpp lh/opengl-lh-if.c log_and_replay/uh_logging.cpp
         autogen/opengl_replay.cpp)
 
 target_include_directories(split-cuda PRIVATE utils common log_and_replay uh ../../include lh ../../jalib autogen)

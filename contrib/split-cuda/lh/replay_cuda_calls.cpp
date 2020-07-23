@@ -39,7 +39,7 @@
 #endif
 #include "crt/host_runtime.h"
 #include "crt/device_functions.h"
-#include "log_and_replay.h"
+#include "uh_logging.h"
 
 void **new_fatCubinHandle = NULL;
 

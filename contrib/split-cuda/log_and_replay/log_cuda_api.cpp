@@ -33,7 +33,7 @@
 #include "cudart_apis.h"
 
 #include "jassert.h"
-#include "log_and_replay.h"
+#include "uh_logging.h"
 
 
 using namespace std;
@@ -58,16 +58,20 @@ static bool disable_logging = false;
 map<void *, lhckpt_pages_t> lh_pages_map;
 
 map<void *, lhckpt_pages_t> &
-getLhPageMaps()
+get_lh_page_map()
 {
   return lh_pages_map;
 }
 
-std::vector<CudaCallLog_t> cudaCallsLog;
+std::vector<LhCallLog_t> cudaCallsLog;
 
-std::vector<CudaCallLog_t> &
-getCudaCallsLog() {
+std::vector<LhCallLog_t> &
+get_lh_call_logs() {
   return cudaCallsLog;
+}
+
+void log_cuda_call(LhCallLog_t log_entry) {
+    cudaCallsLog.push_back(log_entry);
 }
 
 void display_map()

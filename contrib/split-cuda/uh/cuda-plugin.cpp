@@ -48,7 +48,7 @@
 #include "procmapsarea.h"
 #include "getmmap.h"
 #include "util.h"
-#include "log_and_replay.h"
+#include "uh_logging.h"
 #include "mmap-wrapper.h"
 #include "upper-half-wrappers.h"
 

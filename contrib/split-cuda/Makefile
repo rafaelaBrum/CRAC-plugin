@@ -69,7 +69,7 @@ UTILITY_OBJS=utils/procmapsutils.o utils/utils.o \
         utils/trampoline_setup.o
 PLUGIN_LIB_OBJS=${AUTOGEN_OBJS} autogen/opengl_wrappers.o ${UTILITY_OBJS}  \
                 uh/upper-half-wrappers.o uh/cuda-plugin.o \
-                log_and_replay/log_and_replay.o uh/switch_context.o
+                log_and_replay/uh_logging.o uh/switch_context.o
 
 #variables for make check
 DMTCP_LAUNCH=${DMTCP_ROOT}/bin/dmtcp_launch

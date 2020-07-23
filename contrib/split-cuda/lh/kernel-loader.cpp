@@ -47,7 +47,7 @@
 #include "trampoline_setup.h"
 #include "utils.h"
 #include "getmmap.h"
-#include "log_and_replay.h"
+#include "uh_logging.h"
 // #include "device_heap_util.h"
 
 LowerHalfInfo_t lhInfo;
@@ -539,7 +539,7 @@ setupLowerHalfInfo()
   lhInfo.lhDlsym = (void *)&lhDlsym;
   lhInfo.lhMmapListFptr = (void *)&getMmappedList;
   lhInfo.uhEndofHeapFptr = (void *)&getEndOfHeap;
-  lhInfo.getFatCubinHandle=(void *)&fatHandle;
+  //lhInfo.getFatCubinHandle=(void *)&fatHandle;
   // lhInfo.lhDeviceHeap = (void *)ROUND_DOWN(getDeviceHeapPtr());
   // lhInfo.lhGetDeviceHeapFptr = (void *)&getDeviceHeapPtr;
   // lhInfo.lhCopyToCudaPtrFptr = (void *)&copyToCudaPtr;
