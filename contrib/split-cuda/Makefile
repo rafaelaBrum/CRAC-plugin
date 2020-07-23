@@ -121,7 +121,7 @@ ${TARGET_OBJS}: test/target.c
 
 ${TARGET_BIN}: ${TARGET_OBJS}
 	${LD} test/$< -o test/$@ -L. -l${WRAPPER_LIB};
-	${NVCC} -g test/$< -o test/target.exe
+	${NVCC} -g test/$< -lcudart -o test/target.exe
 
 
 # Apparently, Nvidia libraries don't like -pie; so, we are forced

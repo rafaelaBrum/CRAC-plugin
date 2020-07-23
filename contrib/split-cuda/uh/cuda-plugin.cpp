@@ -43,7 +43,6 @@
 
 #include "common.h"
 #include "dmtcp.h"
-// #include "dmtcp_dlsym.h"
 #include "config.h"
 #include "jassert.h"
 #include "procmapsarea.h"
@@ -51,12 +50,7 @@
 #include "util.h"
 #include "log_and_replay.h"
 #include "mmap-wrapper.h"
-// #include "device_heap_util.h"
 #include "upper-half-wrappers.h"
-
-// #define _real_dlsym NEXT_FNC(dlsym)
-// #define _real_dlopen NEXT_FNC(dlopen)
-// #define _real_dlerror NEXT_FNC(dlerror)
 
 #define DEV_NVIDIA_STR "/dev/nvidia"
 
@@ -136,7 +130,7 @@ mtcp_write_non_rwx_and_anonymous_pages(int fd, Area *orig_area)
   if ((orig_area->prot & PROT_READ) == 0) {
     JASSERT(mprotect(orig_area->addr, orig_area->size,
                      orig_area->prot | PROT_READ) == 0)
-      (JASSERT_ERRNO) (orig_area->size) (orig_area->addr)
+      (JASSERT_ERRNO) (orig_area->size) ((void *)orig_area->addr)
     .Text("error adding PROT_READ to mem region");
   }
 
@@ -160,7 +154,7 @@ mtcp_write_non_rwx_and_anonymous_pages(int fd, Area *orig_area)
     } else {
       if (madvise(a.addr, a.size, MADV_DONTNEED) == -1) {
         JNOTE("error doing madvise(..., MADV_DONTNEED)")
-          (JASSERT_ERRNO) (a.addr) ((int)a.size);
+          (JASSERT_ERRNO) ((void *)a.addr) ((int)a.size);
       }
     }
     area.addr += size;
@@ -171,7 +165,7 @@ mtcp_write_non_rwx_and_anonymous_pages(int fd, Area *orig_area)
   */
   if ((orig_area->prot & PROT_READ) == 0) {
     JASSERT(mprotect(orig_area->addr, orig_area->size, orig_area->prot) == 0)
-      (JASSERT_ERRNO) (orig_area->addr) (orig_area->size)
+      (JASSERT_ERRNO) ((void *)orig_area->addr) (orig_area->size)
     .Text("error removing PROT_READ from mem region.");
   }
 }
@@ -245,14 +239,6 @@ regionContains(const void *haystackStart,
   return needleStart >= haystackStart && needleEnd <= haystackEnd;
 }
 
-bool isMergeable(MmapInfo_t first, MmapInfo_t second) {
-  void * first_end_addr = (void *)((uint64_t)first.addr + first.len);
-  if (first_end_addr == second.addr) {
-    return true;
-  }
-  return false;
-}
-
 void getAndMergeUhMaps()
 {
   if (lhInfo.lhMmapListFptr && fnc == NULL) {
@@ -266,10 +252,28 @@ void getAndMergeUhMaps()
     merged_uhmaps.push_back(uh_mmaps[0]);
     for(size_t i = 1; i < uh_mmaps.size(); i++) {
       MmapInfo_t last_merged = merged_uhmaps.back();
-      if (isMergeable(last_merged, uh_mmaps[i])) {
-        MmapInfo_t merged_item;
-        merged_item.addr = last_merged.addr;
-        merged_item.len = last_merged.len + uh_mmaps[i].len;
+      void *uhMmapStart = uh_mmaps[i].addr;
+      void *uhMmapEnd = (VA)uh_mmaps[i].addr + uh_mmaps[i].len;
+      void *lastmergedStart = last_merged.addr;
+      void *lastmergedEnd = (VA)last_merged.addr + last_merged.len;
+      MmapInfo_t merged_item;
+      if (regionContains(uhMmapStart, uhMmapEnd, 
+                         lastmergedStart, lastmergedEnd)) {
+        merged_uhmaps.pop_back();
+        merged_uhmaps.push_back(uh_mmaps[i]);
+      } else if (regionContains(lastmergedStart, lastmergedEnd,
+                                uhMmapStart, uhMmapEnd)) {
+        continue;
+      } else if (lastmergedStart > uhMmapStart 
+                 && uhMmapEnd >= lastmergedStart) {
+        merged_item.addr = uhMmapStart;
+        merged_item.len = (VA)lastmergedEnd - (VA)uhMmapStart;
+        merged_uhmaps.pop_back();
+        merged_uhmaps.push_back(merged_item);
+      } else if (lastmergedStart < uhMmapStart 
+                 && lastmergedEnd >= uhMmapStart) {
+        merged_item.addr = lastmergedStart;
+        merged_item.len = (VA)uhMmapEnd - (VA)lastmergedStart;
         merged_uhmaps.pop_back();
         merged_uhmaps.push_back(merged_item);
       } else {
@@ -370,7 +374,8 @@ dmtcp_skip_memory_region_ckpting(ProcMapsArea *area, int fd, int stack_was_seen)
       }
     } else if (regionContains(area->addr, area->endAddr,
                               uhMmapStart, uhMmapEnd)) {
-      JNOTE("Case 4: detected") (area->addr) (area->endAddr) (area->size);
+      JNOTE("Case 4: detected") ((void*)area->addr) 
+        ((void *)area->endAddr) (area->size);
       fflush(stdout);
       // TODO: this usecase is not completed; fix it later
       // int dummy = 1; while(dummy);
@@ -566,6 +571,11 @@ void restart()
   // fix lower-half fs
   unsigned long addr = 0;
   syscall(SYS_arch_prctl, ARCH_GET_FS, &addr);
+  // We copy the upper-half's FS register's magic number (addr+40) into 
+  // the lower-half's FS register magic number (lhFsAddr+40) 
+  // The lhInfo.lhFsAddr+40 contains an old magic number from the previous
+  // program execution. This old magic number should be updated to the new one
+  // Otherwise context switching would fail.
   memcpy((long *)((VA)lhInfo.lhFsAddr+40), (long *)(addr+40), sizeof(long));
   JNOTE("upper-half FS") ((void *)addr);
   JNOTE("lower-half FS") ((void *)lhInfo.lhFsAddr);

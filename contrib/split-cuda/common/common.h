@@ -78,6 +78,7 @@ typedef struct __LowerHalfInfo
   void *lhGetDeviceHeapFptr;
   void *lhCopyToCudaPtrFptr;
   void *lhDeviceHeap;
+  void *getFatCubinHandle;
 } LowerHalfInfo_t;
 
 typedef struct __UpperHalfInfo
@@ -107,9 +108,16 @@ extern UpperHalfInfo_t uhInfo;
 extern "C" {
 #endif
 void* lhDlsym(GL_Fncs_t type);
+void** fatHandle();
 #ifdef __cplusplus
 }
 #endif
 typedef void* (*LhDlsym_t)(GL_Fncs_t type);
+//getter function returning new_fatCubinHandle
+// from the replay code
+typedef void** (*fatHandle_t)();
 
+
+//global_fatCubinHandle defined in cuda-plugin.cpp
+extern void ** global_fatCubinHandle;
 #endif // ifndef COMMON_H

@@ -21,6 +21,7 @@
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#define CUDA 1
 #endif
 #include <assert.h>
 #include <dlfcn.h>
@@ -156,7 +157,8 @@ printRestartUsage()
 {
   DLOG(ERROR, "Usage: ./kernel-loader --restore /path/to/ckpt.img\n");
 }
-
+//extern "C" void** __cudaRegisterFatBinary(void *fatCubin);
+//extern void ** getCubinHandle();
 // #define shift argv++; argc--;
 int
 main(int argc, char *argv[], char **environ)
@@ -178,6 +180,12 @@ main(int argc, char *argv[], char **environ)
       DLOG(ERROR, "Failed to set up lhinfo for the upper half. Exiting...\n");
       exit(-1);
     }
+//    void * cptr=NULL;
+ //   cudaMalloc(&cptr, 436*sizeof(char));
+	
+    //testing
+   // lhInfo.new_getFatCubinHandle=(void *)&getCubinHandle;
+    //
     /*
      restoreCheckpoint will
      1. read the MtcpHeader
@@ -195,8 +203,6 @@ main(int argc, char *argv[], char **environ)
   runRtld();
   return 0;
 }
-
-
 // Returns the /proc/self/stat entry in the out string (of length len)
 static void
 getProcStatField(enum Procstat_t type, char *out, size_t len)
@@ -533,6 +539,7 @@ setupLowerHalfInfo()
   lhInfo.lhDlsym = (void *)&lhDlsym;
   lhInfo.lhMmapListFptr = (void *)&getMmappedList;
   lhInfo.uhEndofHeapFptr = (void *)&getEndOfHeap;
+  lhInfo.getFatCubinHandle=(void *)&fatHandle;
   // lhInfo.lhDeviceHeap = (void *)ROUND_DOWN(getDeviceHeapPtr());
   // lhInfo.lhGetDeviceHeapFptr = (void *)&getDeviceHeapPtr;
   // lhInfo.lhCopyToCudaPtrFptr = (void *)&copyToCudaPtr;
