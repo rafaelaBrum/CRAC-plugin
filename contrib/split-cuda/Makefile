@@ -47,7 +47,7 @@ override CXXFLAGS += -g3 -O0 -fPIC ${INCLUDE_FLAGS} -c -std=c++11 \
 KERNEL_LOADER_OBJS=lh/kernel-loader.o utils/procmapsutils.o lh/custom-loader.o \
 		   lh/mmap-wrapper.o lh/sbrk-wrapper.o lh/opengl-lh-if.o utils/utils.o \
 		   utils/trampoline_setup.o lh/mem-restore.o \
-       uh/switch_context.o autogen/opengl_replay.o
+       uh/switch_context.o autogen/opengl_replay.o log_and_replay/lh_replay.o
 
 KERNEL_LOADER_CFLAGS=-DSTANDALONE
 KERNEL_LOADER_BIN=kernel-loader.exe
@@ -62,7 +62,7 @@ AUTOGEN_OBJS=
 
 # variables related to stub library which should be linked with user's cuda-
 # application; This library has dummy wrappers for cuda APIs
-WRAPPER_LIB_OBJS=cuda_stub_lib/cuda_stub.o
+WRAPPER_LIB_OBJS=autogen/opengl_dummy_lib.o
 
 # variables related to dmtcp's cuda-plugin (upper-half)
 UTILITY_OBJS=utils/procmapsutils.o utils/utils.o \

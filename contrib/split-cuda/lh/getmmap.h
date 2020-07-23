@@ -22,8 +22,8 @@
 #include <vector>
 #include "common.h"
 
-std::vector<MmapInfo_t>& getMmappedList(int *num);
-typedef std::vector<MmapInfo_t>& (*GetMmappedListFptr_t)(int *num);
+std::vector<MmapInfo_t> getMmappedList(int *num);
+typedef std::vector<MmapInfo_t> (*GetMmappedListFptr_t)(int *num);
 
 std::vector<LhCallLog_t>& get_lh_call_logs();
 typedef std::vector<LhCallLog_t>& (*GetCudaCallsLogFptr_t)();

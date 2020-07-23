@@ -241,7 +241,7 @@ regionContains(const void *haystackStart,
 
 void getAndMergeUhMaps()
 {
-  if (lhInfo.lhMmapListFptr && fnc == NULL) {
+    if (lhInfo.lhMmapListFptr && fnc == NULL) {
       merged_uhmaps.clear();
 
     fnc = (GetMmappedListFptr_t) lhInfo.lhMmapListFptr;

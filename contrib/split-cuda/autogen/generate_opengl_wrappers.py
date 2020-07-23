@@ -7,6 +7,7 @@ jinja_env = Environment(trim_blocks=True, loader=FileSystemLoader('.'))
 
 opengl_wrappers_template = jinja_env.get_template('opengl_wrappers_template.cpp')
 opengl_replay_template = jinja_env.get_template('opengl_replay_template.cpp')
+opengl_dummy_lib_template = jinja_env.get_template('opengl_dummy_lib_template.cpp')
 
 opengl_functions = []
 
@@ -148,6 +149,10 @@ f.close()
 
 f = open('opengl_replay.cpp', 'w')
 f.write(opengl_replay_template.render(funcs=functions))
+f.close()
+
+f = open('opengl_dummy_lib.cpp', 'w')
+f.write(opengl_dummy_lib_template.render(funcs=functions))
 f.close()
 
 lower_half_opengl_if_template = jinja_env.get_template('lower_half_opengl_if_template.h')

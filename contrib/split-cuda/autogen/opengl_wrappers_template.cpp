@@ -96,7 +96,7 @@ extern "C"
 
     DMTCP_PLUGIN_DISABLE_CKPT();
 
-    {% if False %}
+    {% if True %}
     JNOTE("Wrapper called for {{opengl_func.name}}")
     {% for arg_name in opengl_func.arg_names() %}
         ({{arg_name}})
