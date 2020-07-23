@@ -40,15 +40,33 @@ typedef struct Lhckpt_pages_t {
   pages_t mem_type;
   void * mem_addr;
   size_t mem_len;
-}lhckpt_pages_t;
+} lhckpt_pages_t;
 
-void logAPI(GL_Fncs_t cuda_fnc, ...);
-void replayAPI(CudaCallLog_t *l);
+enum virt_type_t {
+    VIRT_TYPE_SEQUENTIAL,
+    VIRT_TYPE_MALLOC,
+};
+
+typedef struct virt_class {
+    virt_type_t type;
+    std::map<void *, void *> mapping;
+} virt_class_t;
+
+// void logAPI(GL_Fncs_t cuda_fnc, ...);
+void replayAPI(LhCallLog_t *l);
 void logs_read_and_apply();
 void disableLogging();
 void enableLogging();
 bool isLoggingDisabled();
 
-std::vector<CudaCallLog_t>& getCudaCallsLog();
-std::map<void *, lhckpt_pages_t> & getLhPageMaps();
+
+
+std::vector<LhCallLog_t>& get_lh_call_logs();
+void log_lh_call(LhCallLog_t log_entry);
+std::map<void *, lhckpt_pages_t> & get_lh_page_map();
+
+void *virtualize_identifier(int cls_id, void *identifier, void *aux);
+void *devirtualize_identifier(int cld_id, void *v_identifier);
+void set_virtualization_type(int cls_id, virt_type_t type);
+void *update_virtualize_identifier(int cls_id, void *v_identifier, void *identifier, void *aux);
 #endif

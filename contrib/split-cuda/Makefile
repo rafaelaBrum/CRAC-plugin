@@ -47,7 +47,7 @@ override CXXFLAGS += -g3 -O0 -fPIC ${INCLUDE_FLAGS} -c -std=c++11 \
 KERNEL_LOADER_OBJS=lh/kernel-loader.o utils/procmapsutils.o lh/custom-loader.o \
 		   lh/mmap-wrapper.o lh/sbrk-wrapper.o lh/opengl-lh-if.o utils/utils.o \
 		   utils/trampoline_setup.o lh/mem-restore.o \
-       uh/switch_context.o
+       uh/switch_context.o autogen/opengl_replay.o
 
 KERNEL_LOADER_CFLAGS=-DSTANDALONE
 KERNEL_LOADER_BIN=kernel-loader.exe
@@ -69,7 +69,7 @@ UTILITY_OBJS=utils/procmapsutils.o utils/utils.o \
         utils/trampoline_setup.o
 PLUGIN_LIB_OBJS=${AUTOGEN_OBJS} autogen/opengl_wrappers.o ${UTILITY_OBJS}  \
                 uh/upper-half-wrappers.o uh/cuda-plugin.o \
-                log_and_replay/log_cuda_api.o uh/switch_context.o
+                log_and_replay/log_and_replay.o uh/switch_context.o
 
 #variables for make check
 DMTCP_LAUNCH=${DMTCP_ROOT}/bin/dmtcp_launch

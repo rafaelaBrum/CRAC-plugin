@@ -43,7 +43,7 @@
 
 void **new_fatCubinHandle = NULL;
 
-void replayAPI(CudaCallLog_t *l)
+void replayAPI(LhCallLog_t *l)
 {
   Cuda_Fncs_t op;
   memcpy(&op, l->fncargs, sizeof op);
@@ -1101,7 +1101,7 @@ void replayAPI(CudaCallLog_t *l)
 void logs_read_and_apply()
 {
   GetCudaCallsLogFptr_t fnc = (GetCudaCallsLogFptr_t)uhInfo.cudaLogVectorFptr;
-  std::vector<CudaCallLog_t>& cudaCallsLog = fnc();
+  std::vector<LhCallLog_t>& cudaCallsLog = fnc();
   for (auto it = cudaCallsLog.begin(); it != cudaCallsLog.end(); it++) {
     replayAPI(&(*it));
   }

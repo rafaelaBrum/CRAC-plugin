@@ -15,12 +15,11 @@ add_executable(split-cuda
         uh/switch_context.cpp
         uh/upper-half-wrappers.cpp
 
-        log_and_replay/log_cuda_api.cpp
-
         utils/mtcp_util.c
         utils/procmapsutils.c
         utils/trampoline_setup.cpp
         utils/utils.cpp
-        autogen/opengl_wrappers.cpp lh/opengl-lh-if.c )
+        autogen/opengl_wrappers.cpp lh/opengl-lh-if.c log_and_replay/log_and_replay.cpp
+        autogen/opengl_replay.cpp)
 
 target_include_directories(split-cuda PRIVATE utils common log_and_replay uh ../../include lh ../../jalib autogen)

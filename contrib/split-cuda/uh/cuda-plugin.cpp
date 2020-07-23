@@ -401,7 +401,7 @@ void init()
 void save_lh_pages_to_memory()
 {
   // get the Lower-half page maps
-  lh_pages_maps = getLhPageMaps();
+  lh_pages_maps = get_lh_page_map();
   /*
   // add the device heap entry to lh_pages_maps
   size_t cudaDeviceHeapSize = 0;
@@ -531,7 +531,7 @@ setupUpperHalfInfo()
   GetEndOfHeapFptr_t func = (GetEndOfHeapFptr_t) lhInfo.uhEndofHeapFptr;
   uhInfo.uhEndofHeap = (void *)func();
   uhInfo.lhPagesRegion = (void *)lh_ckpt_mem_addr;
-  uhInfo.cudaLogVectorFptr = (void *)&getCudaCallsLog;
+  uhInfo.cudaLogVectorFptr = (void *) &get_lh_call_logs;
   // FIXME: We'll just write out the uhInfo object to a file; the lower half
   // will read this file to figure out the information. This is ugly
   // but will work for now.

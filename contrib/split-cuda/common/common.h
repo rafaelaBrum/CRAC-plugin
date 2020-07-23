@@ -93,12 +93,12 @@ typedef struct __MmapInfo
   size_t len;
 } MmapInfo_t;
 
-typedef struct __CudaCallLog{
+typedef struct __LhCallLog{
   char *fncargs;
   size_t size;
   char *results;
   size_t res_size;
-} CudaCallLog_t;
+} LhCallLog_t;
 
 extern LowerHalfInfo_t lhInfo;
 extern UpperHalfInfo_t uhInfo;

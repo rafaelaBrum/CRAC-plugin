@@ -1,34 +1,66 @@
+/// log
 void glBegin(GLenum mode);
+
+/// log
 void glCallList(GLuint list);
+
+/// log
 void glClear(GLbitfield mask);
+
+/// log
 void glEnable(GLenum cap);
+
+/// log
 void glEnd();
+
+/// log
 void glEndList();
 
+/// log
 void glFrustum( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble nearVal, GLdouble farVal);
 
+// For glGenLists, we probably need to reimplement the list id allocator.
+/// log
 GLuint glGenLists( GLsizei range);
+
+/// log
+/// arg params buf_length 3
 void glLightfv( GLenum light, GLenum pname, const GLfloat * params);
 
 void glLoadIdentity(void);
+
+/// log
+/// arg params buf_length 3
 void glMaterialfv(GLenum face, GLenum pname, const GLfloat * params);
+
+/// log
 void glMatrixMode(GLenum mode);
 
+/// log
 void glNewList(GLuint list, GLenum mode);
 
+/// log
 void glNormal3f(GLfloat nx, GLfloat ny, GLfloat nz);
 
+/// log
 void glPushMatrix(void);
+
+/// log
 void glPopMatrix(void);
 
+/// log
 void glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 
+/// log
 void glShadeModel(GLenum mode);
 
+/// log
 void glTranslatef(GLfloat x, GLfloat y, GLfloat z);
 
+/// log
 void glVertex3f(GLfloat x, GLfloat y, GLfloat z);
 
+/// log
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
 
 
