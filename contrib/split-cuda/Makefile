@@ -39,9 +39,9 @@ INCLUDE_FLAGS=-I. -I${CUDA_INCLUDE_PATH} -I${DMTCP_INCLUDE} -I${JALIB_INCLUDE} \
 WARNING_FLAGS=-Wall -Wno-deprecated-declarations
 
 override CFLAGS += -g3 -O0 -fPIC ${INCLUDE_FLAGS} -c -std=gnu11 \
-                ${WARNING_FLAGS} -fno-stack-protector
+                ${WARNING_FLAGS} -fno-stack-protector -fno-omit-frame-pointer
 override CXXFLAGS += -g3 -O0 -fPIC ${INCLUDE_FLAGS} -c -std=c++11 \
-                  ${WARNING_FLAGS} -fno-stack-protector
+                  ${WARNING_FLAGS} -fno-stack-protector -fno-omit-frame-pointer
 
 # variables related to kernel loader
 KERNEL_LOADER_OBJS=lh/kernel-loader.o utils/procmapsutils.o lh/custom-loader.o \

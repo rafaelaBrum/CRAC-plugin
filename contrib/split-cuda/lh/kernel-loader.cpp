@@ -477,7 +477,7 @@ printf("newStack: %lu newStackOffset: %lu newStackEnd: %lu \n", (unsigned long)n
 static void*
 createNewHeapForRtld(const DynObjInfo_t *info)
 {
-  const uint64_t heapSize = 100000 * PAGE_SIZE;
+  const uint64_t heapSize = 0x1337 * PAGE_SIZE;
 
   // We go through the mmap wrapper function to ensure that this gets added
   // to the list of upper half regions to be checkpointed.

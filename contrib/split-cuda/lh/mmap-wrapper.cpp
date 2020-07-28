@@ -71,7 +71,7 @@ compare (MmapInfo_t &a, MmapInfo_t &b)
 
 // Returns a pointer to the array of mmap-ed regions
 // Sets num to the number of valid items in the array
-vector<MmapInfo_t>
+vector<MmapInfo_t> &
 getMmappedList(int *num)
 {
   *num = mmaps.size();

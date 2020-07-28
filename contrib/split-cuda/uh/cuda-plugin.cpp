@@ -246,7 +246,7 @@ void getAndMergeUhMaps()
 
     fnc = (GetMmappedListFptr_t) lhInfo.lhMmapListFptr;
     int numUhRegions = 0;
-    std::vector<MmapInfo_t> uh_mmaps = fnc(&numUhRegions);
+    const std::vector<MmapInfo_t> &uh_mmaps = fnc(&numUhRegions);
 
     // merge the entries if two entries are continous
     merged_uhmaps.push_back(uh_mmaps[0]);

@@ -15,6 +15,6 @@ void logs_read_and_apply() {
     }
     swap_buffers();
     DLOG(INFO, "Done replaying!\n");
-    {int x = 1; while (x) {}}
+    //{int x = 1; while (x) {}}
 
 }
