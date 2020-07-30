@@ -242,7 +242,6 @@ regionContains(const void *haystackStart,
 void getAndMergeUhMaps()
 {
     if (lhInfo.lhMmapListFptr && fnc == NULL) {
-      merged_uhmaps.clear();
 
     fnc = (GetMmappedListFptr_t) lhInfo.lhMmapListFptr;
     int numUhRegions = 0;
@@ -304,6 +303,8 @@ dmtcp_skip_memory_region_ckpting(ProcMapsArea *area, int fd, int stack_was_seen)
     strstr(area->name, DEV_NVIDIA_STR)) {
     return rc; // skip this region
   }
+
+  getAndMergeUhMaps();
 
   // smaller than smallest uhmaps or greater than largest address
   if ((area->endAddr < merged_uhmaps[0].addr) || \
@@ -510,7 +511,6 @@ void pre_ckpt()
   //cudaDeviceSynchronize();
   save_lh_pages_to_memory();
   enableLogging();
-  getAndMergeUhMaps();
 }
 
 // Writes out the lhinfo global object to a file. Returns 0 on success,

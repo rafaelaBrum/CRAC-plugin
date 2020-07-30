@@ -427,6 +427,12 @@ FileConnList::recreateShmFileAndMap(const ProcMapsArea &area)
   // Recreate file in dmtcp-tmpdir;
   string filename = removeSuffix(area.name, DELETED_FILE_SUFFIX);
 
+  // FIXME: hack lol
+  if (filename.rfind("/memfd:", 0) == 0) {
+      JNOTE("Skipping memfd in recreateShmFileAndMap") (filename);
+      return; // just don't
+  }
+
   JASSERT(createDirectoryTree(area.name)) (area.name)
   .Text("Unable to create directory in File Path");
 
