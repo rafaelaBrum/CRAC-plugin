@@ -8,6 +8,7 @@ jinja_env = Environment(trim_blocks=True, loader=FileSystemLoader('.'))
 opengl_wrappers_template = jinja_env.get_template('opengl_wrappers_template.cpp')
 opengl_replay_template = jinja_env.get_template('opengl_replay_template.cpp')
 opengl_dummy_lib_template = jinja_env.get_template('opengl_dummy_lib_template.cpp')
+opengl_log_replay_header_template = jinja_env.get_template('opengl_log_replay_template.h')
 
 opengl_functions = []
 
@@ -19,9 +20,11 @@ class FunctionInfo:
         # values in this dict are probably out of order. Use the pos
         # field of the args to sort.
         self.args = {}
-        self.return_type = None
+        self.ret = FunctionArg()
 
     def get_arg(self, arg_name):
+        if arg_name == '_ret':
+            return self.ret
         if arg_name not in self.args:
             self.args[arg_name] = FunctionArg(name=arg_name)
         return self.args[arg_name]
@@ -51,6 +54,8 @@ class FunctionArg:
     def __init__(self, type_=None, name=None, pos=-1):
         self.type_ = type_
         self.name = name
+        self.virtualize_in = None
+        self.virtualize_out = None
         self.flags = {}
         self.pos = pos
 
@@ -61,20 +66,36 @@ class FunctionArg:
         return '*' in self.type_
 
     def copy_as_buf(self):
-        return self.is_ptr() and 'buf_length' in self.flags
+        return self.is_buf() and not self.virtualize_in and not self.virtualize_out
 
     def buf_len(self):
         if 'buf_length' not in self.flags:
             assert False
         return self.flags['buf_length']
 
+    def is_buf(self):
+        return self.is_ptr() and 'buf_length' in self.flags
+
     def deref_type(self):
         assert self.type_[-1] == '*' # lol
         return self.type_[:-1]
 
+class VirtualizationClass:
+    def __init__(self, name, virt_type, virt_class_id):
+        self.name = name
+        self.virt_type = virt_type
+        self.virt_class_id = virt_class_id
+
+    def get_enum_name(self):
+        return f'VIRT_CLASS_{self.name.upper()}'
+
+    def get_enum_virt_type(self):
+        return f'VIRT_TYPE_{self.virt_type.upper()}'
+
 
 function_info = FunctionInfo()
 functions = []
+virt_classes = {}
 for line_ in open('opengl_wrapper_signatures.txt'):
     line_ = line_.strip()
     if not line_:
@@ -93,11 +114,26 @@ for line_ in open('opengl_wrapper_signatures.txt'):
         elif decorator_argv[0] == 'arg':
             arg_name = decorator_argv[1]
             arg_param = decorator_argv[2]
-            arg_param_value = decorator_argv[3]
-            function_info.get_arg(arg_name).flags[arg_param] = arg_param_value
-            print(f'Found arg param for f{arg_name}: arg_param arg_param_value')
+            if arg_param == 'virt_in':
+                virt_class_name = decorator_argv[3]
+                function_info.get_arg(arg_name).virtualize_in = virt_classes[virt_class_name]
+                print(f'Found virt_in for arg {arg_name} with virt class {virt_class_name}')
+            elif arg_param == 'virt_out':
+                virt_class_name = decorator_argv[3]
+                function_info.get_arg(arg_name).virtualize_out = virt_classes[virt_class_name]
+                print(f'Found virt_out for arg {arg_name} with virt class {virt_class_name}')
+            else:
+                arg_param_value = decorator_argv[3]
+                function_info.get_arg(arg_name).flags[arg_param] = arg_param_value
+                print(f'Found other arg param for {arg_name}: {arg_param} {arg_param_value}')
+        elif decorator_argv[0] == 'virt_class':
+            virt_class_name = decorator_argv[1]
+            virt_class_type = decorator_argv[2]
+            virt_class_id = int(decorator_argv[3])
+            virt_classes[virt_class_name] = VirtualizationClass(virt_class_name, virt_class_type, virt_class_id)
+            print(f'New virt class f{virt_class_type} with type f{virt_class_type}')
         else:
-            print(f'Unrecognized decorator: f{line}')
+            print(f'Unrecognized decorator: {line_}')
             assert False
         continue
 
@@ -114,7 +150,7 @@ for line_ in open('opengl_wrapper_signatures.txt'):
     if not return_type.strip():
         return_type = 'void'
     print(f'Return type: {return_type}')
-    function_info.return_type = return_type
+    function_info.ret.type_ = return_type
 
     func_name = parse_matches.group(2)
     func_name = func_name.strip()
@@ -154,6 +190,12 @@ f.close()
 f = open('opengl_dummy_lib.cpp', 'w')
 f.write(opengl_dummy_lib_template.render(funcs=functions))
 f.close()
+
+f = open('opengl_log_replay.h', 'w')
+f.write(opengl_log_replay_header_template.render(virt_classes=sorted(list(virt_classes.values())),
+                                                 key=lambda x: x.virt_class_id))
+f.close()
+
 
 lower_half_opengl_if_template = jinja_env.get_template('lower_half_opengl_if_template.h')
 open('lower_half_opengl_if.h', 'w').write(lower_half_opengl_if_template.render(func_names=[v.name for v in functions]))

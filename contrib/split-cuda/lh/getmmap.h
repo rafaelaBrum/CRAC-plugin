@@ -28,5 +28,7 @@ typedef std::vector<MmapInfo_t> &(*GetMmappedListFptr_t)(int *num);
 std::vector<LhCallLog_t>& get_lh_call_logs();
 typedef std::vector<LhCallLog_t>& (*GetCudaCallsLogFptr_t)();
 
+typedef void (*update_virtualize_identifier_fptr_t)(int, void *, void *, void *);
+
 void * getEndOfHeap();
 typedef void *(*GetEndOfHeapFptr_t)();

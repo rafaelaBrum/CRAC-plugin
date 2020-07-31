@@ -86,6 +86,9 @@ typedef struct __UpperHalfInfo
   void *uhEndofHeap;
   void *lhPagesRegion;
   void *cudaLogVectorFptr;
+  void *virtualize_identifier_fptr;
+  void *devirtualize_identifier_fptr;
+  void *update_virtualize_identifier_fptr;
 } UpperHalfInfo_t;
 
 typedef struct __MmapInfo

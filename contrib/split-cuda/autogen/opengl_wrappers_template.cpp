@@ -10,6 +10,7 @@
 #include "common.h"
 #include "upper-half-wrappers.h"
 #include "uh_logging.h"
+#include "opengl_log_replay.h"
 
 #define REAL_FNC(fnc) \
   ({ fnc##_t fnc##Fnc = (fnc##_t) -1; \
@@ -35,8 +36,8 @@
 
 {% if opengl_func.log %}
 void log_{{opengl_func.name}}({{opengl_func.args_signature()}}
-{% if opengl_func.return_type != 'void' %}
-, {{opengl_func.return_type}} _ret
+{% if opengl_func.ret.type_ != 'void' %}
+, {{opengl_func.ret.type_}} _ret
 {% endif %}
 ) {
     size_t args_buf_size = sizeof(int); // for function #
@@ -64,11 +65,11 @@ void log_{{opengl_func.name}}({{opengl_func.args_signature()}}
         {% endif %}
     {% endfor %}
 
-{% if opengl_func.return_type != 'void' %}
-    size_t ret_buf_size = sizeof({{opengl_func.return_type}});
+{% if opengl_func.ret.type_ != 'void' %}
+    size_t ret_buf_size = sizeof({{opengl_func.ret.type_}});
     void *ret_buf = malloc(ret_buf_size);
 
-    memcpy(ret_buf, &_ret, sizeof({{opengl_func.return_type}}));
+    memcpy(ret_buf, &_ret, sizeof({{opengl_func.ret.type_}}));
 {% else %}
     size_t ret_buf_size = 0;
     void *ret_buf = NULL;
@@ -86,12 +87,12 @@ void log_{{opengl_func.name}}({{opengl_func.args_signature()}}
 
 #undef {{opengl_func.name}}
 extern "C"
-{{opengl_func.return_type}} {{opengl_func.name}}({{opengl_func.args_signature()}}) {
-    typedef {{opengl_func.return_type}}
+{{opengl_func.ret.type_}} {{opengl_func.name}}({{opengl_func.args_signature()}}) {
+    typedef {{opengl_func.ret.type_}}
         (*{{opengl_func.name}}_t)({{opengl_func.args_signature()}});
 
-    {% if opengl_func.return_type != 'void' %}
-        {{ opengl_func.return_type }} ret;
+    {% if opengl_func.ret.type_ != 'void' %}
+        {{ opengl_func.ret.type_ }} ret;
     {% endif %}
 
     DMTCP_PLUGIN_DISABLE_CKPT();
@@ -106,17 +107,44 @@ extern "C"
     JUMP_TO_LOWER_HALF(lhInfo.lhFsAddr);
 
     {{opengl_func.name}}_t real_fnc = REAL_FNC({{opengl_func.name}});
-    {% if opengl_func.return_type != 'void' %}
+    {% if opengl_func.ret.type_ != 'void' %}
     ret =
     {% endif %}
-        real_fnc({{opengl_func.arg_names_commas()}});
+        real_fnc(
+        {% set comma = joiner(',') %}
+        {% for arg in opengl_func.get_args() %}
+        {{comma()}}
+        {% if arg.virtualize_in %}
+        ({{arg.type_}}) devirtualize_identifier({{arg.virtualize_in.get_enum_name()}}, {{arg.name}})
+        {% else %}
+        {{arg.name}}
+        {% endif %}
+        {% endfor %}
+        );
 
     RETURN_TO_UPPER_HALF();
+
+    {% if opengl_func.ret.virtualize_out %}
+    set_virtualization_type({{opengl_func.ret.virtualize_out.get_enum_name()}},
+        {{opengl_func.ret.virtualize_out.get_enum_virt_type()}});
+        // really hope this identifier is void*-sized!
+    ret = ({{opengl_func.ret.type_}})
+        virtualize_identifier({{opengl_func.ret.virtualize_out.get_enum_name()}},
+            ret,
+            {% if opengl_func.ret.virtualize_out.type == 'malloc' %}
+            {{ assert(opengl_func.ret.is_buf()) }}
+            {{opengl_func.ret.buf_len()}}
+            {% else %}
+            (void *) -1
+            {% endif %}
+        );
+        JNOTE("Virtualized return to ") (ret);
+    {% endif %}
 
     /* Insert logging code here */
     {% if opengl_func.log %}
     log_{{opengl_func.name}}({{opengl_func.arg_names_commas()}}
-        {% if opengl_func.return_type != 'void' %}
+        {% if opengl_func.ret.type_ != 'void' %}
         , ret
         {% endif %}
     );
@@ -124,7 +152,7 @@ extern "C"
 
     DMTCP_PLUGIN_ENABLE_CKPT();
 
-    {% if opengl_func.return_type != 'void' %}
+    {% if opengl_func.ret.type_ != 'void' %}
     // JNOTE("Wrapper finished for {{opengl_func.name}}") (ret);
     return ret;
     {% endif %}

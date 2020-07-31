@@ -537,6 +537,10 @@ setupUpperHalfInfo()
   uhInfo.uhEndofHeap = (void *)func();
   uhInfo.lhPagesRegion = (void *)lh_ckpt_mem_addr;
   uhInfo.cudaLogVectorFptr = (void *) &get_lh_call_logs;
+  uhInfo.virtualize_identifier_fptr = (void *) virtualize_identifier;
+  uhInfo.devirtualize_identifier_fptr = (void *) devirtualize_identifier;
+  uhInfo.update_virtualize_identifier_fptr =
+          (void *) update_virtualize_identifier;
   // FIXME: We'll just write out the uhInfo object to a file; the lower half
   // will read this file to figure out the information. This is ugly
   // but will work for now.

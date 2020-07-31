@@ -68,5 +68,5 @@ std::map<void *, lhckpt_pages_t> & get_lh_page_map();
 void *virtualize_identifier(int cls_id, void *identifier, void *aux);
 void *devirtualize_identifier(int cld_id, void *v_identifier);
 void set_virtualization_type(int cls_id, virt_type_t type);
-void *update_virtualize_identifier(int cls_id, void *v_identifier, void *identifier, void *aux);
+void update_virtualize_identifier(int cls_id, void *v_identifier, void *identifier, void *aux);
 #endif

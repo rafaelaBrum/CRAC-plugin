@@ -1,3 +1,5 @@
+/// virt_class x_display sequential 1
+
 /// log
 void glBegin(GLenum mode);
 
@@ -78,24 +80,33 @@ const GLubyte *glGetString( 	GLenum name);
 // genType cos( 	genType angle);
 // genType sqrt( 	genType x);
 
+/// arg dpy virt_in x_display
 XVisualInfo* glXChooseVisual(Display * dpy,  int screen,  int * attribList);
+/// arg dpy virt_in x_display
 GLXContext glXCreateContext(Display * dpy,  XVisualInfo * vis,  GLXContext shareList,  Bool direct);
+/// arg dpy virt_in x_display
 void glXDestroyContext(Display * dpy,  GLXContext ctx);
+/// arg dpy virt_in x_display
 void glXQueryDrawable(Display * dpy,  GLXDrawable draw,  int attribute,  unsigned int * value);
+/// arg dpy virt_in x_display
 const char * glXQueryExtensionsString(Display * dpy,  int screen);
 
+/// arg dpy virt_in x_display
 void glXSwapBuffers(Display * dpy,  GLXDrawable drawable);
+/// arg dpy virt_in x_display
 Bool glXMakeCurrent(Display * dpy,  GLXDrawable drawable,  GLXContext ctx);
 
 KeySym XLookupKeysym(XKeyEvent *key_event, int index);
 int XFree(void *data);
 
+/// arg display virt_in x_display
 Colormap XCreateColormap(
       Display *display,
       Window w,
       Visual *visual,
       int alloc
 );
+/// arg display virt_in x_display
 Window XCreateWindow(
       Display *display,
       Window parent,
@@ -119,25 +130,32 @@ int XLookupString(
       KeySym *keysym_return,
       XComposeStatus *status_in_out
 );
+/// arg display virt_in x_display
 int XMapWindow(
       Display *display,
       Window w
 );
+/// arg display virt_in x_display
 int XNextEvent(
       Display *display,
       XEvent *event_return
 );
+
+/// arg _ret virt_out x_display
 Display *XOpenDisplay(
       const char *display_name
 );
+/// arg display virt_in x_display
 int XPending(
       Display *display
 );
+/// arg display virt_in x_display
 int XSetNormalHints(
       Display *display,
       Window w,
       XSizeHints *hints
 );
+/// arg display virt_in x_display
 int XSetStandardProperties(
       Display *display,
       Window w,
@@ -149,12 +167,14 @@ int XSetStandardProperties(
       XSizeHints *hints
 );
 
+/// arg display virt_in x_display
 Atom XInternAtom(
       Display *display,
       const char *atom_name,
       Bool only_if_exists
 );
 
+/// arg display virt_in x_display
 int XChangeProperty(
       Display *display,
       Window w,
@@ -166,11 +186,13 @@ int XChangeProperty(
       int nelements
 );
 
+/// arg display virt_in x_display
 int XDestroyWindow(
       Display *display,
       Window w,
 );
 
+/// arg display virt_in x_display
 int XCloseDisplay(
       Display *display,
 );

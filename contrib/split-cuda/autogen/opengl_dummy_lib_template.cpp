@@ -8,7 +8,7 @@
 
 #undef {{opengl_func.name}}
 extern "C"
-{{opengl_func.return_type}} {{opengl_func.name}}({{opengl_func.args_signature()}}) {
+{{opengl_func.ret.type_}} {{opengl_func.name}}({{opengl_func.args_signature()}}) {
     assert(0);
 }
 

@@ -9,7 +9,13 @@
 #include "lower_half_opengl_if.h"
 #include "common.h"
 #include "logging.h"
+#include "getmmap.h"
+#include "opengl_log_replay.h"
 
+#define UPDATE_VIRT(cls_id, v_identifier, identifier, aux) \
+    update_virtualize_identifier_fptr_t fnc = \
+        (update_virtualize_identifier_fptr_t) uhInfo.update_virtualize_identifier_fptr; \
+    fnc(cls_id, v_identifier, identifier, aux);
 
 {% for opengl_func in funcs if opengl_func.log %}
 void replay_{{opengl_func.name}}(LhCallLog_t &log_entry) {
@@ -30,8 +36,8 @@ void replay_{{opengl_func.name}}(LhCallLog_t &log_entry) {
     DLOG(INFO, "Replaying {{opengl_func.name}}\n");
     {% endif %}
 
-    {% if opengl_func.return_type != 'void' %}
-    {{opengl_func.return_type}} _ret =
+    {% if opengl_func.ret.type_ != 'void' %}
+    {{opengl_func.ret.type_}} _ret =
     {% endif %}
         {% set comma = joiner(',') %}
         {{opengl_func.name}}(
@@ -40,11 +46,20 @@ void replay_{{opengl_func.name}}(LhCallLog_t &log_entry) {
             {% endfor %}
         );
 
-    {% if opengl_func.return_type != 'void' %}
-    if (_ret != *({{opengl_func.return_type}} *) log_entry.results) {
+    {% if opengl_func.ret.type_ != 'void' %}
+    {% if opengl_func.ret.virtualize_out %}
+        // really hope this identifier is void*-sized!
+    UPDATE_VIRT({{opengl_func.ret.virtualize_out.get_enum_name()}},
+        (void *) *({{opengl_func.ret.type_}} *) log_entry.results,
+        _ret,
+        NULL // unused temporarily
+        );
+    {% else %}
+    if (_ret != *({{opengl_func.ret.type_}} *) log_entry.results) {
         DLOG(INFO, "Return of logged function does not match\n"
         "original return!\n");
     }
+    {% endif %}
     {% endif %}
 
     int gl_error = glGetError();
@@ -93,6 +108,8 @@ void init_opengl_replay() {
     attribs[i++] = None;
 
     dpy = XOpenDisplay(0);
+    DLOG(INFO, "New dpy: %p\n", dpy);
+    UPDATE_VIRT(VIRT_CLASS_X_DISPLAY, 0, dpy, NULL);
     int scrnum = DefaultScreen( dpy );
     XVisualInfo *visinfo = glXChooseVisual(dpy, scrnum, attribs);
    if (!visinfo) {
