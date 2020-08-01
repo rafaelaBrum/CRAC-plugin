@@ -153,7 +153,7 @@ extern "C"
     DMTCP_PLUGIN_ENABLE_CKPT();
 
     {% if opengl_func.ret.type_ != 'void' %}
-    // JNOTE("Wrapper finished for {{opengl_func.name}}") (ret);
+    JNOTE("Wrapper finished for {{opengl_func.name}}") (ret);
     return ret;
     {% endif %}
 }

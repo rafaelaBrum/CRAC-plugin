@@ -26,13 +26,13 @@ void glFrustum( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GL
 GLuint glGenLists( GLsizei range);
 
 /// log
-/// arg params buf_length 3
+/// arg params buf_length 4
 void glLightfv( GLenum light, GLenum pname, const GLfloat * params);
 
 void glLoadIdentity(void);
 
 /// log
-/// arg params buf_length 3
+/// arg params buf_length 4
 void glMaterialfv(GLenum face, GLenum pname, const GLfloat * params);
 
 /// log
