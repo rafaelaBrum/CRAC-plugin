@@ -253,6 +253,7 @@ main(int argc, char *argv[], char **environ)
   rinfo.restore_split_process = 0;
   shift;
   while (argc > 0) {
+    // mtcp_printf("argc[0] = %s\n", argv[0]); // (debugging)
     if (mtcp_strcmp(argv[0], "--use-gdb") == 0) {
       rinfo.use_gdb = 1;
       shift;

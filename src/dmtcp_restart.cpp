@@ -134,7 +134,7 @@ int coord_port = UNINITIALIZED_PORT;
 string thePortFile;
 
 CoordinatorMode allowedModes = COORD_ANY;
-static bool runMtcpSplitProcess = false;
+static bool runMtcpSplitProcess = true;
 
 static void setEnvironFd();
 static void runMtcpRestart(int is32bitElf, int fd, ProcessInfo *pInfo);
@@ -521,7 +521,7 @@ runMtcpRestart(int is32bitElf, int fd, ProcessInfo *pInfo)
     newArgs.push_back(fdBuf);
     newArgs.push_back((char *)"--stderr-fd");
     newArgs.push_back(stderrFdBuf);
-    newArgs.push_back( mtcp_restart_pause ? (char *)("--mtcp-restart-pause") : NULL );
+    newArgs.push_back(mtcp_restart_pause?(char*)("--mtcp-restart-pause"):NULL);
     newArgs.push_back( mtcp_restart_pause ? pause_param : NULL );
   }
 
