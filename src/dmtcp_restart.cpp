@@ -509,10 +509,18 @@ runMtcpRestart(int is32bitElf, int fd, ProcessInfo *pInfo)
     // If mtcp_restart_pause == true, mtcp_restart will invoke
     //     postRestartDebug() in the checkpoint image instead of postRestart().
   }
-  static string kernelLoader = Util::getPath("kernel-loader.exe");
+  char kernelLoader[PATH_MAX];
+  strcpy(kernelLoader, "/home/");
+  // printf("kernelLoader = %s\n", kernelLoader);
+  strcat(kernelLoader, getlogin());
+  // printf("kernelLoader = %s\n", kernelLoader);
+  strcat(kernelLoader, "/CRAC-plugin/contrib/split-cuda/kernel-loader.exe");
+  // printf("kernelLoader = %s\n", kernelLoader);
+
+  exit(1);
   vector<char *> newArgs;
   if (runMtcpSplitProcess) {
-    newArgs.push_back((char *)kernelLoader.c_str());
+    newArgs.push_back((char *)kernelLoader);
     newArgs.push_back((char *)"--restore");
     newArgs.push_back(fdBuf);
   } else {

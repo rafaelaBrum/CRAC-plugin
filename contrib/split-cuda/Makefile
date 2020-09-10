@@ -54,7 +54,7 @@ KERNEL_LOADER_BIN=kernel-loader.exe
 
 # variables related to small cuda application (target.c)
 TARGET_OBJS=target.o
-TARGET_BIN=target.dummy.exe
+TARGET_BIN=target.exe
 
 # variables related to autogen code
 AUTOGEN_OBJS=autogen/cuda_autogen_wrappers.o
@@ -120,15 +120,13 @@ ${TARGET_OBJS}: test/target.c
 	${NVCC} ${INCLUDE_FLAGS} ${NVCC_OPTFLAGS} -c $< -o test/$@
 
 ${TARGET_BIN}: ${TARGET_OBJS}
-	${LD} test/$< -o test/$@ -L. -l${WRAPPER_LIB};
-	${NVCC} -g test/$< -lcudart -o test/target.exe
+	${LD} test/$< -o test/$@ -L. -l${WRAPPER_LIB}
 
 
 # Apparently, Nvidia libraries don't like -pie; so, we are forced
 # to link the kernel loader (which is really just emulating the lower
 # half) to a fixed address (0x800000)
 ${KERNEL_LOADER_BIN}: ${KERNEL_LOADER_OBJS}
-	#${NVCC} ${NVCC_FLAGS} -L/home/alienware/Documents/CRAC-monitored/CRAC-early-development/contrib/split-cuda/mylib/ $^ -o $@ -lcuda -ldl -lcublas -lcusparse -lcusolver -lwrapper
 	${NVCC} ${NVCC_FLAGS}  $^ -o $@ -lcuda -ldl  -lcusparse -lcusolver -lcublas
 
 vi vim:
