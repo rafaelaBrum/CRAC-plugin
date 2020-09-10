@@ -54,3 +54,6 @@ test/testconfig.py
 ckpt_*.dmtcp
 dmtcp_restart_script*
 *logs*
+
+
+*.exe
