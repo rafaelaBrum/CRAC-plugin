@@ -517,7 +517,6 @@ runMtcpRestart(int is32bitElf, int fd, ProcessInfo *pInfo)
   strcat(kernelLoader, "/CRAC-plugin/contrib/split-cuda/kernel-loader.exe");
   // printf("kernelLoader = %s\n", kernelLoader);
 
-  exit(1);
   vector<char *> newArgs;
   if (runMtcpSplitProcess) {
     newArgs.push_back((char *)kernelLoader);
