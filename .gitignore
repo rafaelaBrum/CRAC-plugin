@@ -57,3 +57,6 @@ dmtcp_restart_script*
 
 
 *.exe
+
+*cuda_autogen_wrappers.*
+*lower_half_cuda_if.h
