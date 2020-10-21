@@ -885,6 +885,7 @@ main(int argc, char **argv)
 
   tmpDir = Util::calcTmpDir(tmpdir_arg);
   if (ckptdir_arg) {
+    setenv(ENV_VAR_CHECKPOINT_DIR, ckptdir_arg, 1);
     setNewCkptDir(ckptdir_arg);
   }
 

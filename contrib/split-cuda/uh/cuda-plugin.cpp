@@ -51,6 +51,7 @@
 #include "log_and_replay.h"
 #include "mmap-wrapper.h"
 #include "upper-half-wrappers.h"
+#include "../../src/constants.h"
 
 #define DEV_NVIDIA_STR "/dev/nvidia"
 
@@ -255,20 +256,20 @@ void getAndMergeUhMaps()
       void *lastmergedStart = last_merged.addr;
       void *lastmergedEnd = (VA)last_merged.addr + last_merged.len;
       MmapInfo_t merged_item;
-      if (regionContains(uhMmapStart, uhMmapEnd, 
+      if (regionContains(uhMmapStart, uhMmapEnd,
                          lastmergedStart, lastmergedEnd)) {
         merged_uhmaps.pop_back();
         merged_uhmaps.push_back(uh_mmaps[i]);
       } else if (regionContains(lastmergedStart, lastmergedEnd,
                                 uhMmapStart, uhMmapEnd)) {
         continue;
-      } else if (lastmergedStart > uhMmapStart 
+      } else if (lastmergedStart > uhMmapStart
                  && uhMmapEnd >= lastmergedStart) {
         merged_item.addr = uhMmapStart;
         merged_item.len = (VA)lastmergedEnd - (VA)uhMmapStart;
         merged_uhmaps.pop_back();
         merged_uhmaps.push_back(merged_item);
-      } else if (lastmergedStart < uhMmapStart 
+      } else if (lastmergedStart < uhMmapStart
                  && lastmergedEnd >= uhMmapStart) {
         merged_item.addr = lastmergedStart;
         merged_item.len = (VA)uhMmapEnd - (VA)lastmergedStart;
@@ -375,7 +376,7 @@ dmtcp_skip_memory_region_ckpting(ProcMapsArea *area, int fd, int stack_was_seen)
       }
     } else if (regionContains(area->addr, area->endAddr,
                               uhMmapStart, uhMmapEnd)) {
-      JNOTE("Case 4: detected") ((void*)area->addr) 
+      JNOTE("Case 4: detected") ((void*)area->addr)
         ((void *)area->endAddr) (area->size);
       fflush(stdout);
       // TODO: this usecase is not completed; fix it later
@@ -517,8 +518,12 @@ void pre_ckpt()
 static void
 writeUhInfoToFile()
 {
-  char filename[100];
-  snprintf(filename, 100, "./uhInfo_%d", getpid());
+  char filename[300];
+  const char *ckptDir = getenv(ENV_VAR_CHECKPOINT_DIR);
+  if(ckptDir != NULL)
+    snprintf(filename, 300, "%s/uhInfo_%d", ckptDir, getpid());
+  else
+    snprintf(filename, 300, "./uhInfo_%d", getpid());
   int fd = open(filename, O_WRONLY | O_CREAT, 0644);
   JASSERT (fd != -1) ("Could not create uhaddr.bin file.") (JASSERT_ERRNO);
 
@@ -570,8 +575,8 @@ void restart()
   // fix lower-half fs
   unsigned long addr = 0;
   syscall(SYS_arch_prctl, ARCH_GET_FS, &addr);
-  // We copy the upper-half's FS register's magic number (addr+40) into 
-  // the lower-half's FS register magic number (lhFsAddr+40) 
+  // We copy the upper-half's FS register's magic number (addr+40) into
+  // the lower-half's FS register magic number (lhFsAddr+40)
   // The lhInfo.lhFsAddr+40 contains an old magic number from the previous
   // program execution. This old magic number should be updated to the new one
   // Otherwise context switching would fail.

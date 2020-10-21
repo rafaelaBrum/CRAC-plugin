@@ -48,6 +48,7 @@
 #include "utils.h"
 #include "getmmap.h"
 #include "log_and_replay.h"
+#include "../../src/constants.h"
 // #include "device_heap_util.h"
 
 LowerHalfInfo_t lhInfo;
@@ -157,8 +158,8 @@ printRestartUsage()
 {
   DLOG(ERROR, "Usage: ./kernel-loader --restore /path/to/ckpt.img\n");
 }
-//extern "C" void** __cudaRegisterFatBinary(void *fatCubin);
-//extern void ** getCubinHandle();
+// extern "C" void** __cudaRegisterFatBinary(void *fatCubin);
+// extern void ** getCubinHandle();
 // #define shift argv++; argc--;
 int
 main(int argc, char *argv[], char **environ)
@@ -180,11 +181,10 @@ main(int argc, char *argv[], char **environ)
       DLOG(ERROR, "Failed to set up lhinfo for the upper half. Exiting...\n");
       exit(-1);
     }
-//    void * cptr=NULL;
- //   cudaMalloc(&cptr, 436*sizeof(char));
-	
-    //testing
-   // lhInfo.new_getFatCubinHandle=(void *)&getCubinHandle;
+    // void * cptr=NULL;
+    // cudaMalloc(&cptr, 436*sizeof(char));
+    // testing
+    // lhInfo.new_getFatCubinHandle=(void *)&getCubinHandle;
     //
     /*
      restoreCheckpoint will
@@ -194,9 +194,7 @@ main(int argc, char *argv[], char **environ)
     */
     restoreCheckpointImg(ckptFd);
     readUhInfoAddr();
-    
     logs_read_and_apply();
-    
     copy_lower_half_data();
     returnTodmtcp();
     // Following line should not be reached.
@@ -401,7 +399,7 @@ deepCopyStack(void *newStack, const void *origStack, size_t len,
             (uintptr_t)info->phdr,
             (uintptr_t)info->entryPoint);
 
-printf("newArgv[-2]: %lu \n", (unsigned long)&newArgv[0]);
+// printf("newArgv[-2]: %lu \n", (unsigned long)&newArgv[0]);
 
   // We clear out the rest of the new stack region just in case ...
   memset(newStack, 0, (size_t)((uintptr_t)&newArgv[-2] - (uintptr_t)newStack));
@@ -460,8 +458,12 @@ createNewStackForRtld(const DynObjInfo_t *info)
   unsigned long newStackOffset = origStackOffset;
   void *newStackEnd = (void*)((unsigned long)newStack + newStackOffset);
 
-printf("origStack: %lu origStackOffset: %lu OrigStackEnd: %lu \n", (unsigned long)stack.addr, (unsigned long)origStackOffset, (unsigned long)origStackEnd);
-printf("newStack: %lu newStackOffset: %lu newStackEnd: %lu \n", (unsigned long)newStack, (unsigned long)newStackOffset, (unsigned long)newStackEnd);
+// printf("origStack: %lu ", (unsigned long)stack.addr);
+// printf("origStackOffset: %lu ", (unsigned long)origStackOffset);
+// printf("OrigStackEnd: %lu \n", (unsigned long)origStackEnd);
+// printf("newStack: %lu ", (unsigned long)newStack);
+// printf("newStackOffset: %lu ", (unsigned long)newStackOffset);
+// printf("newStackEnd: %lu \n", (unsigned long)newStackEnd);
 
   // 2. Deep copy stack
   newStackEnd = deepCopyStack(newStack, stack.addr, stack.size,
@@ -512,8 +514,21 @@ static int
 writeLhInfoToFile()
 {
   size_t rc = 0;
-  char filename[100];
-  snprintf(filename, 100, "./lhInfo_%d", getpid());
+  char filename[300];
+  struct stat status;
+  const char *ckptDir = getenv(ENV_VAR_CHECKPOINT_DIR);
+  if(ckptDir != NULL) {
+    if(stat(ckptDir, &status) == -1) {
+      int rt = mkdir(ckptDir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+      if(rt < 0) {
+        DLOG(ERROR, "Could not create folder. Error: %s", strerror(errno));
+        return -1;
+      }
+    }
+    snprintf(filename, 300, "%s/lhInfo_%d", ckptDir, getpid());
+  }
+  else
+    snprintf(filename, 300, "./lhInfo_%d", getpid());
   int fd = open(filename, O_WRONLY | O_CREAT, 0644);
   if (fd < 0) {
     DLOG(ERROR, "Could not create addr.bin file. Error: %s", strerror(errno));
@@ -541,7 +556,7 @@ setupLowerHalfInfo()
   lhInfo.lhDlsym = (void *)&lhDlsym;
   lhInfo.lhMmapListFptr = (void *)&getMmappedList;
   lhInfo.uhEndofHeapFptr = (void *)&getEndOfHeap;
-  lhInfo.getFatCubinHandle=(void *)&fatHandle;
+  lhInfo.getFatCubinHandle = (void *)&fatHandle;
   // lhInfo.lhDeviceHeap = (void *)ROUND_DOWN(getDeviceHeapPtr());
   // lhInfo.lhGetDeviceHeapFptr = (void *)&getDeviceHeapPtr;
   // lhInfo.lhCopyToCudaPtrFptr = (void *)&copyToCudaPtr;
@@ -564,10 +579,14 @@ setupLowerHalfInfo()
 static void
 readUhInfoAddr()
 {
-  char filename[100];
+  char filename[300];
   // snprintf(filename, 100, "./uhInfo_%d", getpid());
   pid_t orig_pid = getUhPid();
-  snprintf(filename, 100, "./uhInfo_%d", orig_pid);
+  const char *ckptDir = getenv(ENV_VAR_CHECKPOINT_DIR);
+  if(ckptDir != NULL)
+    snprintf(filename, 300, "%s/uhInfo_%d", ckptDir, orig_pid);
+  else
+    snprintf(filename, 300, "./uhInfo_%d", orig_pid);
   int fd = open(filename, O_RDONLY);
   if (fd < 0) {
     printf("Could not open upper-half file for reading. %s \n", filename);
@@ -617,7 +636,7 @@ copy_lower_half_data() {
       case (CUDA_MALLOC_PAGE):
       {
         // copy back the actual data
-        cudaMemcpy(dest_addr, ((VA)lhpages_addr+count), size, cudaMemcpyHostToDevice);
+cudaMemcpy(dest_addr, ((VA)lhpages_addr+count), size, cudaMemcpyHostToDevice);
         count += size;
         break;
       }

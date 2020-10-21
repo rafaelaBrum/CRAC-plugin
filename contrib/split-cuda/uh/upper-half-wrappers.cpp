@@ -31,6 +31,7 @@
 
 #include "common.h"
 #include "upper-half-wrappers.h"
+#include "../../src/constants.h"
 
 int initialized = 0;
 
@@ -99,8 +100,12 @@ reset_wrappers()
 static void
 readLhInfoAddr()
 {
-  char filename[100];
-  snprintf(filename, 100, "./lhInfo_%d", dmtcp_get_real_pid());
+  char filename[300];
+  const char *ckptDir = getenv(ENV_VAR_CHECKPOINT_DIR);
+  if(ckptDir != NULL)
+    snprintf(filename, 300, "%s/lhInfo_%d", ckptDir, dmtcp_get_real_pid());
+  else
+    snprintf(filename, 300, "./lhInfo_%d", dmtcp_get_real_pid());
   int fd = open(filename, O_RDONLY);
   if (fd < 0) {
     printf("Could not open %s for reading.", filename);
