@@ -123,108 +123,207 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
     {
       // args
       void **pointer = va_arg(arglist, void **);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", pointer, sizeof (void *));
       memcpy(buf + chars_wrote, pointer, sizeof (void *));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", pointer, sizeof (void *));
       chars_wrote += sizeof (void *);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
       size_t size = va_arg(arglist, size_t);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &size, sizeof size);
       memcpy(buf + chars_wrote, &size, sizeof size);
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &size, sizeof size);
       chars_wrote += sizeof (size);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
       // update the map
       lhckpt_pages_t page = {CUDA_MALLOC_PAGE, *pointer, size};
       lh_pages_map[*pointer] = page;
-      // display_map();
-      break;
+      display_map();
+      printf("Display pages map:\n");
+      display_map();
+      printf("\n");
     }
     case GENERATE_ENUM(cuMemAlloc_v2):
     {
       // args
       CUdeviceptr *pointer = va_arg(arglist, CUdeviceptr *);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", pointer, sizeof (CUdeviceptr *));
       memcpy(buf + chars_wrote, &pointer, sizeof (CUdeviceptr *));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", pointer, sizeof (CUdeviceptr *));
       chars_wrote += sizeof (CUdeviceptr *);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
       size_t size = va_arg(arglist, size_t);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &size, sizeof size);
       memcpy(buf + chars_wrote, &size, sizeof size);
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &size, sizeof size);
       chars_wrote += sizeof (size);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
       // update the map
       lhckpt_pages_t page = {CUMEM_ALLOC_PAGE, pointer, size};
       lh_pages_map[pointer] = page;
-      // display_map();
+      printf("Display pages map:\n");
+      display_map();
+      printf("\n");
       break;
     }
     case GENERATE_ENUM(cudaFree):
     {
       // args
       void *pointer = va_arg(arglist, void *);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", pointer, sizeof (void *));
       memcpy(buf + chars_wrote, &pointer, sizeof (void *));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", pointer, sizeof (void *));
       chars_wrote += sizeof (void *);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
       // remove from maps
       lh_pages_map.erase(pointer);
+      printf("Display pages map:\n");
+      display_map();
+      printf("\n");
       break;
     }
     case GENERATE_ENUM(cuMemFree_v2):
     {
       // args
       CUdeviceptr pointer = va_arg(arglist, CUdeviceptr);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &pointer, sizeof (CUdeviceptr));
       memcpy(buf + chars_wrote, &pointer, sizeof (CUdeviceptr));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &pointer, sizeof (CUdeviceptr));
       chars_wrote += sizeof (CUdeviceptr);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
       // remove from maps
       lh_pages_map.erase(&pointer);
+      printf("Display pages map:\n");
+      display_map();
+      printf("\n");
       break;
     }
     case GENERATE_ENUM(__cudaInitModule):
     {
       // args
       void **fatCubinHandle = va_arg(arglist, void **);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", fatCubinHandle, sizeof (void *));
       memcpy(buf + chars_wrote, fatCubinHandle, sizeof (void *));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", fatCubinHandle, sizeof (void *));
       chars_wrote += sizeof (void *);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
       break;
     }
     case GENERATE_ENUM(__cudaPushCallConfiguration):
     {
       // args
+      // printf("Copying gridDim\n");
       dim3 gridDim = va_arg(arglist, dim3);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &gridDim, sizeof (gridDim));
       memcpy(buf + chars_wrote, &gridDim, sizeof (gridDim));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &gridDim, sizeof (gridDim));
       chars_wrote += sizeof (gridDim);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
+      // printf("Copying blockDim\n");
       dim3 blockDim = va_arg(arglist, dim3);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &blockDim, sizeof (blockDim));
       memcpy(buf + chars_wrote, &blockDim, sizeof (blockDim));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &blockDim, sizeof (blockDim));
       chars_wrote += sizeof (blockDim);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
+      // printf("Copying sharedMem\n");
       size_t sharedMem = va_arg(arglist, size_t);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &sharedMem, sizeof (sharedMem));
       memcpy(buf + chars_wrote, &sharedMem, sizeof (sharedMem));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &sharedMem, sizeof (sharedMem));
       chars_wrote += sizeof (sharedMem);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
+      // printf("Copying stream\n");
       void *stream = va_arg(arglist, void *);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &stream, sizeof (void *));
       memcpy(buf + chars_wrote, &stream, sizeof (void *));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &stream, sizeof (void *));
       chars_wrote += sizeof (void *);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
       log.res_size = sizeof(unsigned int);
+      // printf("starting JALLOC_MALLOC(%lu)\n", log.res_size + 1);
       log.results = (char *)JALLOC_MALLOC(log.res_size + 1);
+      // printf("done JALLOC_MALLOC(%lu)\n", log.res_size + 1);
 
       unsigned int res = va_arg(arglist, unsigned int);
+      // printf("starting memcpy(log.results, ");
+      // printf("%p, %lu)\n", &res, sizeof (unsigned int));
       memcpy(log.results, &res, sizeof (unsigned int));
+      // printf("done memcpy(log.results, ");
+      // printf("%p, %lu)\n", &res, sizeof (unsigned int));
 
       break;
     }
     case GENERATE_ENUM(__cudaPopCallConfiguration):
     {
       // args
+      // printf("Copying *gridDim\n");
       dim3 *gridDim = va_arg(arglist, dim3 *);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &gridDim, sizeof (*gridDim));
       memcpy(buf + chars_wrote, &gridDim, sizeof (*gridDim));
+      // printf("done memcpy(buf + %lu\n", chars_wrote);
+      // printf(", %p, %lu)", &gridDim, sizeof (*gridDim));
       chars_wrote += sizeof (*gridDim);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
+      // printf("Copying *blockDim\n");
       dim3 *blockDim = va_arg(arglist, dim3 *);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &blockDim, sizeof (*blockDim));
       memcpy(buf + chars_wrote, &blockDim, sizeof (*blockDim));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &blockDim, sizeof (*blockDim));
       chars_wrote += sizeof (*blockDim);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
+      // printf("Copying *sharedMem\n");
       size_t *sharedMem = va_arg(arglist, size_t *);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &sharedMem, sizeof (*sharedMem));
       memcpy(buf + chars_wrote, &sharedMem, sizeof (*sharedMem));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &sharedMem, sizeof (*sharedMem));
       chars_wrote += sizeof (*sharedMem);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
+      // printf("Copying *stream\n");
       void *stream = va_arg(arglist, void *);
+      // printf("starting memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &stream, sizeof (void *));
       memcpy(buf + chars_wrote, &stream, sizeof (void *));
+      // printf("done memcpy(buf + %lu", chars_wrote);
+      // printf(", %p, %lu)\n", &stream, sizeof (void *));
       chars_wrote += sizeof (void *);
+      // printf("update chars_wrote to %lu\n", chars_wrote);
 
       break;
     }
@@ -1148,16 +1247,31 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
     }
   }
   // common for every API
+  // printf("starting JALLOC_MALLOC(%lu)\n", chars_wrote);
   log.fncargs = (char *)JALLOC_MALLOC(chars_wrote);
+  // printf("done JALLOC_MALLOC(%lu)\n", log.res_size + 1);
+
+  // printf("starting memcpy(log.fncargs, %p, %lu)\n", &buf, chars_wrote);
   memcpy(log.fncargs, buf, chars_wrote);
+  // printf("done memcpy(log.fncargs, %p, %lu)\n", &buf, chars_wrote);
   log.size = chars_wrote;
+
+  printf("cudaCallsLog.capacity = %lu - ", cudaCallsLog.capacity());
+  printf("cudaCallsLog.size = %lu\n", cudaCallsLog.size());
+  // printf("cudaCallsLog.max_size = %lu\n", cudaCallsLog.max_size());
 
   // push_back fails/segfaults when a lot of cuda Calls are made
   // To avoid the segfault we can resize cudaCallsLog
   // However this will be destructive at restart;
   // lets use reserve for Now...
   // cudaCallsLog.resize(log.size);
-  cudaCallsLog.reserve(log.size);
+  printf("start cudaCallsLog.reserve()\n");
+  cudaCallsLog.reserve(50000);
+  printf("done cudaCallsLog.reserve()\n");
+  printf("start cudaCallsLog.push_back(log)\n");
   cudaCallsLog.push_back(log);
+  printf("done cudaCallsLog.push_back(log)\n");
   va_end(arglist);
+  printf("ending log function\n");
+  fflush(stdout);
 }
