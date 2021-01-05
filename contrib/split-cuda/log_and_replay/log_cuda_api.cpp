@@ -139,13 +139,15 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
       // printf(", %p, %lu)\n", &size, sizeof size);
       chars_wrote += sizeof (size);
       // printf("update chars_wrote to %lu\n", chars_wrote);
+
+      // printf("cudaMalloc de %lu bytes\n", size);
+
       // update the map
       lhckpt_pages_t page = {CUDA_MALLOC_PAGE, *pointer, size};
       lh_pages_map[*pointer] = page;
-      display_map();
-      printf("Display pages map:\n");
-      display_map();
-      printf("\n");
+      // printf("Display pages map:\n");
+      // display_map();
+      // printf("\n");
     }
     case GENERATE_ENUM(cuMemAlloc_v2):
     {
@@ -170,9 +172,9 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
       // update the map
       lhckpt_pages_t page = {CUMEM_ALLOC_PAGE, pointer, size};
       lh_pages_map[pointer] = page;
-      printf("Display pages map:\n");
-      display_map();
-      printf("\n");
+      // printf("Display pages map:\n");
+      // display_map();
+      // printf("\n");
       break;
     }
     case GENERATE_ENUM(cudaFree):
@@ -188,9 +190,9 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
       // printf("update chars_wrote to %lu\n", chars_wrote);
       // remove from maps
       lh_pages_map.erase(pointer);
-      printf("Display pages map:\n");
-      display_map();
-      printf("\n");
+      // printf("Display pages map:\n");
+      // display_map();
+      // printf("\n");
       break;
     }
     case GENERATE_ENUM(cuMemFree_v2):
@@ -206,9 +208,9 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
       // printf("update chars_wrote to %lu\n", chars_wrote);
       // remove from maps
       lh_pages_map.erase(&pointer);
-      printf("Display pages map:\n");
-      display_map();
-      printf("\n");
+      // printf("Display pages map:\n");
+      // display_map();
+      // printf("\n");
       break;
     }
     case GENERATE_ENUM(__cudaInitModule):
@@ -1256,8 +1258,8 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
   // printf("done memcpy(log.fncargs, %p, %lu)\n", &buf, chars_wrote);
   log.size = chars_wrote;
 
-  printf("cudaCallsLog.capacity = %lu - ", cudaCallsLog.capacity());
-  printf("cudaCallsLog.size = %lu\n", cudaCallsLog.size());
+  // printf("cudaCallsLog.capacity = %lu - ", cudaCallsLog.capacity());
+  // printf("cudaCallsLog.size = %lu\n", cudaCallsLog.size());
   // printf("cudaCallsLog.max_size = %lu\n", cudaCallsLog.max_size());
 
   // push_back fails/segfaults when a lot of cuda Calls are made
@@ -1265,13 +1267,13 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
   // However this will be destructive at restart;
   // lets use reserve for Now...
   // cudaCallsLog.resize(log.size);
-  printf("start cudaCallsLog.reserve()\n");
+  // printf("start cudaCallsLog.reserve()\n");
   cudaCallsLog.reserve(50000);
-  printf("done cudaCallsLog.reserve()\n");
-  printf("start cudaCallsLog.push_back(log)\n");
+  // printf("done cudaCallsLog.reserve()\n");
+  // printf("start cudaCallsLog.push_back(log)\n");
   cudaCallsLog.push_back(log);
-  printf("done cudaCallsLog.push_back(log)\n");
+  // printf("done cudaCallsLog.push_back(log)\n");
   va_end(arglist);
-  printf("ending log function\n");
-  fflush(stdout);
+  // printf("ending log function\n");
+  // fflush(stdout);
 }

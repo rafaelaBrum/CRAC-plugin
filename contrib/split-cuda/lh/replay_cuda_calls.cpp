@@ -43,20 +43,29 @@
 void **new_fatCubinHandle = NULL;
 void replayAPI(CudaCallLog_t *l)
 {
+  // cudaError_t error = cudaGetLastError();
+  // printf("error = %s\n", cudaGetErrorString(error));
+
+  // printf("l->size = %lu\n", l->size);
+
   Cuda_Fncs_t op;
   memcpy(&op, l->fncargs, sizeof op);
   size_t chars_read = sizeof op;
   switch(op) {
     case GENERATE_ENUM(cudaMalloc):
     {
+      // printf("replaying cudaMalloc\n");
       void *oldDevPtr;
       memcpy(&oldDevPtr, l->fncargs + chars_read, sizeof oldDevPtr);
+      // printf("oldDevPtt = %p", oldDevPtr);
       chars_read += sizeof oldDevPtr;
       size_t len;
 
       memcpy(&len, l->fncargs + chars_read, sizeof len);
       void *newDevPtr = NULL;
-      cudaError_t ret = cudaMalloc(&newDevPtr, len);
+      // printf("cudaMalloc(&newDevPtr, %lu)\n", len);
+      cudaError_t ret = cudaMalloc((void **) &newDevPtr, len);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
       assert(ret == cudaSuccess);
 
       // JASSERT(ret == cudaSuccess) ("cudaMalloc replay failed!");
@@ -66,6 +75,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(cuMemAlloc_v2):
     {
+      // printf("replaying cuMemAlloc_v2\n");
       CUdeviceptr *oldDevPtr;
       memcpy(&oldDevPtr, l->fncargs + chars_read, sizeof oldDevPtr);
       chars_read += sizeof oldDevPtr;
@@ -73,6 +83,7 @@ void replayAPI(CudaCallLog_t *l)
       memcpy(&len, l->fncargs + chars_read, sizeof len);
       CUdeviceptr *newDevPtr = NULL;
       CUresult ret = cuMemAlloc_v2(newDevPtr, len);
+      // printf("ret = %d\n", ret);
       assert(ret == CUDA_SUCCESS);
       // JASSERT(ret == cudaSuccess) ("cudaMalloc replay failed!");
       // JASSERT(newDevPtr == oldDevPtr) (oldDevPtr) (newDevPtr)
@@ -81,6 +92,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(cudaMallocManaged):
     {
+      // printf("replaying cudaMallocManaged\n");
       void *oldDevPtr;
       memcpy(&oldDevPtr, l->fncargs + chars_read, sizeof oldDevPtr);
       chars_read += sizeof oldDevPtr;
@@ -94,6 +106,7 @@ void replayAPI(CudaCallLog_t *l)
 
       void *newDevPtr = NULL;
       cudaError_t ret = cudaMallocManaged(&newDevPtr, len, flags);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
       assert(ret == cudaSuccess);
       // JASSERT(ret == cudaSuccess) ("cudaMalloc replay failed!");
       // JASSERT(newDevPtr == oldDevPtr) (oldDevPtr) (newDevPtr)
@@ -102,6 +115,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(cuMemAllocManaged):
     {
+      // printf("replaying cuMemAllocManaged\n");
       CUdeviceptr * oldDevPtr;
       memcpy(&oldDevPtr, l->fncargs + chars_read, sizeof oldDevPtr);
       chars_read += sizeof oldDevPtr;
@@ -115,6 +129,7 @@ void replayAPI(CudaCallLog_t *l)
 
       CUdeviceptr * newDevPtr = NULL;
       CUresult ret = cuMemAllocManaged(newDevPtr, len, flags);
+      // printf("ret = %d\n", ret);
       assert(ret == CUDA_SUCCESS);
       // JASSERT(ret == cudaSuccess) ("cudaMalloc replay failed!");
       // JASSERT(newDevPtr == oldDevPtr) (oldDevPtr) (newDevPtr)
@@ -123,25 +138,33 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(cudaFree):
     {
+      // printf("replaying cudaFree\n");
       void *devPtr;
       memcpy(&devPtr, l->fncargs + chars_read, sizeof devPtr);
-      // cudaError_t ret = cudaFree(devPtr);
-      cudaFree(devPtr);
+      if(devPtr != NULL)
+      {
+        cudaError_t ret = cudaFree(devPtr);
+        // printf("ret = %s\n", cudaGetErrorString(ret));
+        assert(ret == cudaSuccess);
+      }
       // JASSERT(ret == cudaSuccess) ("cudaFree replay failed!");
       break;
     }
     case GENERATE_ENUM(cuMemFree_v2):
     {
+      // printf("replaying cuMemFree_v2\n");
       // args
       CUdeviceptr devPtr;
       memcpy(&devPtr, l->fncargs + chars_read, sizeof devPtr);
-      // cudaError_t ret = cudaFree(devPtr);
-      cuMemFree_v2(devPtr);
+      cudaError_t ret = cudaFree(&devPtr);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       // JASSERT(ret == cudaSuccess) ("cudaFree replay failed!");
       break;
     }
     case GENERATE_ENUM(__cudaInitModule):
     {
+      // printf("replaying __cudaInitModule\n");
       void  *fatCubinHandle;
       memcpy(&fatCubinHandle, l->fncargs + chars_read, sizeof (void *));
       chars_read += sizeof (void *);
@@ -158,6 +181,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(__cudaPopCallConfiguration):
     {
+      // printf("replaying __cudaPopCallConfiguration\n");
       dim3 gridDim;
       dim3 blockDim;
       size_t sharedMem;
@@ -170,15 +194,18 @@ void replayAPI(CudaCallLog_t *l)
       chars_read += sizeof sharedMem;
       memcpy(&stream, l->fncargs + chars_read, sizeof (void *));
       // replay
-      // cudaError_t ret =
+      cudaError_t ret =
       __cudaPopCallConfiguration(&gridDim, &blockDim,
                           &sharedMem, stream);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       // JASSERT(ret == cudaSuccess)
       //   .Text("__cudaPopCallConfiguration replay failed");
       break;
     }
     case GENERATE_ENUM(__cudaPushCallConfiguration):
     {
+      // printf("replaying __cudaPushCallConfiguration\n");
       dim3 gridDim;
       dim3 blockDim;
       size_t sharedMem;
@@ -191,14 +218,16 @@ void replayAPI(CudaCallLog_t *l)
       chars_read += sizeof sharedMem;
       memcpy(&stream, l->fncargs + chars_read, sizeof (void *));
       // replay
-      typedef unsigned int (*pushFptr_t)(dim3 gridDim, dim3 blockDim, size_t sharedMem, void * stream);
+      typedef unsigned int (*pushFptr_t)(dim3 gridDim, dim3 blockDim, \
+        size_t sharedMem, void * stream);
       Cuda_Fncs_t fnc = Cuda_Fnc___cudaPushCallConfiguration;
       pushFptr_t func = (pushFptr_t)lhDlsym(fnc);
-      func(gridDim, blockDim,sharedMem, stream);
+      func(gridDim, blockDim, sharedMem, stream);
       break;
     }
     case GENERATE_ENUM(__cudaRegisterFatBinary):
     {
+      // printf("replaying __cudaRegisterFatBinary\n");
       void * fatCubin;
       memcpy(&fatCubin, l->fncargs + chars_read, sizeof(void *));
       chars_read += sizeof (void *);
@@ -206,8 +235,8 @@ void replayAPI(CudaCallLog_t *l)
       memcpy(&oldRes, l->fncargs + chars_read, sizeof(void *));
       // replay
       void  **newRes = __cudaRegisterFatBinary(fatCubin);
-      printf("\n old fatcubinhandle = %p\n", oldRes);
-      printf("fatcubinhandle = %p\n", newRes);
+      // printf("\n old fatcubinhandle = %p\n", oldRes);
+      // printf("fatcubinhandle = %p\n", newRes);
       new_fatCubinHandle = newRes;
       // JASSERT(memcmp(&oldRes, *newRes, sizeof(*newRes))!= 0)
       //   .Text("old and new results are not same!");
@@ -215,6 +244,7 @@ void replayAPI(CudaCallLog_t *l)
     }
   case GENERATE_ENUM(__cudaRegisterFatBinaryEnd):
     {
+      // printf("replaying __cudaRegisterFatBinary\n");
       // replay
       // This call was introduced in CUDA 10.2
       // CUDA 10.2 will fail without this call
@@ -224,6 +254,7 @@ void replayAPI(CudaCallLog_t *l)
 
     case GENERATE_ENUM(__cudaUnregisterFatBinary):
     {
+      // printf("replaying __cudaUnregisterFatBinary\n");
       void *fatCubinHandle;
       memcpy(&fatCubinHandle, l->fncargs + chars_read, sizeof(void *));
       // replay
@@ -234,6 +265,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(__cudaRegisterFunction):
     {
+      // printf("replaying __cudaRegisterFunction\n");
       void **fatCubinHandle;
       // int hostFunLen;
       // int deviceFunLen;
@@ -268,7 +300,8 @@ void replayAPI(CudaCallLog_t *l)
       chars_read += sizeof(char *);
 
 
-      // memcpy(&deviceNameLen, l->fncargs + chars_read, sizeof (deviceNameLen));
+      // memcpy(&deviceNameLen, l->fncargs + chars_read,
+      //     sizeof (deviceNameLen));
       // chars_read += sizeof (deviceNameLen);
       // char *deviceName = (char *)malloc(deviceNameLen);
       // memcpy(deviceName, l->fncargs + chars_read, deviceNameLen);
@@ -305,6 +338,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(__cudaRegisterVar):
     {
+      // printf("replaying __cudaRegisterVar\n");
       void **fatCubinHandle;
       char *hostVar;
       int ext;
@@ -346,6 +380,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(__cudaRegisterManagedVar):
     {
+      // printf("replaying __cudaRegisterManagedVar\n");
       void **fatCubinHandle;
       void **hostVarPtrAddress;
       int ext;
@@ -387,6 +422,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(__cudaRegisterTexture):
     {
+      // printf("replaying __cudaRegisterTexture\n");
       void  **fatCubinHandle;
       struct textureReference *hostVar;
       const void **deviceAddress;
@@ -422,6 +458,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(__cudaRegisterSurface):
     {
+      // printf("replaying __cudaRegisterSurface\n");
       void  **fatCubinHandle;
       struct surfaceReference *hostVar;
       const void **deviceAddress;
@@ -453,6 +490,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(cudaCreateTextureObject):
     {
+      // printf("replaying cudaCreateTextureObject\n");
       // args
       cudaTextureObject_t * pTexObject;
       memcpy(&pTexObject, l->fncargs + chars_read, sizeof(pTexObject));
@@ -468,20 +506,27 @@ void replayAPI(CudaCallLog_t *l)
 
       struct cudaResourceViewDesc * pResViewDesc;
       memcpy(&pResViewDesc, l->fncargs + chars_read, sizeof(pResViewDesc));
-      cudaCreateTextureObject(pTexObject, pResDesc, pTexDesc, pResViewDesc);
+      cudaError_t ret = cudaCreateTextureObject(pTexObject, pResDesc, \
+          pTexDesc, pResViewDesc);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cudaDestroyTextureObject):
     {
+      // printf("replaying cudaDestroyTextureObject\n");
       // args
       cudaTextureObject_t texObject;
       memcpy(&texObject, l->fncargs + chars_read, sizeof(texObject));
 
-      cudaDestroyTextureObject(texObject);
+      cudaError_t ret = cudaDestroyTextureObject(texObject);
+      assert(ret == cudaSuccess);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
       break;
     }
     case GENERATE_ENUM(cudaBindTextureToArray):
     {
+      // printf("replaying cudaBindTextureToArray\n");
       textureReference* texref;
       memcpy(&texref, l->fncargs + chars_read, sizeof(texref));
       chars_read += sizeof(texref);
@@ -493,20 +538,26 @@ void replayAPI(CudaCallLog_t *l)
       cudaChannelFormatDesc * desc;
       memcpy(&desc, l->fncargs + chars_read, sizeof(desc));
       chars_read += sizeof(desc);
-      cudaBindTextureToArray(texref, array, desc);
+      cudaError_t ret = cudaBindTextureToArray(texref, array, desc);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cudaUnbindTexture):
     {
+      // printf("replaying cudaUnbindTexture\n");
       struct textureReference * texref;
       memcpy(&texref, l->fncargs + chars_read, sizeof(texref));
       chars_read += sizeof(texref);
-      cudaUnbindTexture(texref);
+      cudaError_t ret = cudaUnbindTexture(texref);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cudaCreateChannelDesc):
     {
-      int x,y,z,w;
+      // printf("replaying cudaCreateChannelDesc\n");
+      int x, y, z, w;
       memcpy(&x, l->fncargs + chars_read, sizeof x);
       chars_read += sizeof x;
       memcpy(&y, l->fncargs + chars_read, sizeof y);
@@ -528,6 +579,7 @@ void replayAPI(CudaCallLog_t *l)
     }
     case GENERATE_ENUM(cudaMallocArray):
     {
+      // printf("replaying cudaMallocArray\n");
       // TODO : check the cudaMallocArray log and replay
       // args
       cudaArray_t * array;
@@ -549,58 +601,76 @@ void replayAPI(CudaCallLog_t *l)
       chars_read += sizeof (height);
 
       memcpy(&flags, l->fncargs + chars_read, sizeof flags);
-      cudaMallocArray(array, desc, width, height, flags);
+      cudaError_t ret = cudaMallocArray(array, desc, width, height, flags);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cudaFreeArray):
     {
+      // printf("replaying cudaFreeArray\n");
       // args
       cudaArray_t array;
       memcpy(&array, l->fncargs + chars_read, sizeof(array));
 
-      cudaFreeArray(array);
+      cudaError_t ret = cudaFreeArray(array);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cudaMallocHost):
     {
-      //args
+      // printf("replaying cudaMallocHost\n");
+      // args
       void ** ptr;
       size_t size;
       memcpy(&ptr, l->fncargs + chars_read, sizeof(void *));
       chars_read += sizeof(void *);
 
       memcpy(&size, l->fncargs + chars_read, sizeof size);
-      cudaMallocHost(ptr, size);
+      cudaError_t ret = cudaMallocHost(ptr, size);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cuMemAllocHost_v2):
     {
-      //args
+      // printf("replaying cuMemAllocHost_v2\n");
+      // args
       void ** ptr;
       size_t size;
       memcpy(&ptr, l->fncargs + chars_read, sizeof(void *));
       chars_read += sizeof(void *);
 
       memcpy(&size, l->fncargs + chars_read, sizeof size);
-      cuMemAllocHost_v2(ptr, size);
+      CUresult ret = cuMemAllocHost_v2(ptr, size);
+      // printf("ret = %d\n", ret);
+      assert(ret == CUDA_SUCCESS);
       break;
     }
     case GENERATE_ENUM(cudaFreeHost):
     {
+      // printf("replaying cudaFreeHost\n");
       void *ptr;
       memcpy(&ptr, l->fncargs + chars_read, sizeof(void *));
-      cudaFreeHost(ptr);
+      cudaError_t ret = cudaFreeHost(ptr);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cuMemFreeHost):
     {
+      // printf("replaying cuMemFreeHost\n");
       void *ptr;
       memcpy(&ptr, l->fncargs + chars_read, sizeof(void *));
-      cuMemFreeHost(ptr);
+      CUresult ret = cuMemFreeHost(ptr);
+      // printf("ret = %d\n", ret);
+      assert(ret == CUDA_SUCCESS);
       break;
     }
     case GENERATE_ENUM(cudaHostAlloc):
     {
+      // printf("replaying cudaHostAlloc\n");
       // before replaying the host alloc
       void **ptr;
       size_t size;
@@ -612,11 +682,14 @@ void replayAPI(CudaCallLog_t *l)
       chars_read += sizeof (size);
 
       memcpy(&flags, l->fncargs + chars_read, sizeof flags);
-      cudaHostAlloc(ptr, size , flags);
+      cudaError_t ret = cudaHostAlloc(ptr, size , flags);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cuMemHostAlloc):
     {
+      // printf("replaying cuMemHostAlloc\n");
       // before replaying the host alloc
       void **ptr;
       size_t size;
@@ -628,17 +701,23 @@ void replayAPI(CudaCallLog_t *l)
       chars_read += sizeof (size);
 
       memcpy(&flags, l->fncargs + chars_read, sizeof flags);
-      cuMemHostAlloc(ptr, size , flags);
+      CUresult ret = cuMemHostAlloc(ptr, size , flags);
+      // printf("ret = %d\n", ret);
+      assert(ret == CUDA_SUCCESS);
       break;
     }
     case GENERATE_ENUM(cudaDeviceReset):
     {
+      // printf("replaying cudaDeviceReset\n");
       // no arguments to read from buffer
-      cudaDeviceReset();
+      cudaError_t ret = cudaDeviceReset();
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cudaMallocPitch):
     {
+      // printf("replaying cudaMallocPitch\n");
       void ** devPtr;
       memcpy(&devPtr, l->fncargs + chars_read, sizeof(devPtr));
       chars_read += sizeof(devPtr);
@@ -654,11 +733,14 @@ void replayAPI(CudaCallLog_t *l)
       size_t height;
       memcpy(&height, l->fncargs + chars_read, sizeof(height));
       chars_read += sizeof(height);
-      cudaMallocPitch(devPtr, pitch, width, height);
+      cudaError_t ret = cudaMallocPitch(devPtr, pitch, width, height);
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cuMemAllocPitch_v2):
     {
+      // printf("replaying cuMemAllocPitch_v2\n");
       CUdeviceptr* devPtr;
       memcpy(&devPtr, l->fncargs + chars_read, sizeof(devPtr));
       chars_read += sizeof(devPtr);
@@ -676,21 +758,28 @@ void replayAPI(CudaCallLog_t *l)
       chars_read += sizeof(height);
 
       unsigned int ElementSizeBytes;
-      memcpy(&ElementSizeBytes, l->fncargs + chars_read, sizeof(ElementSizeBytes));
+      memcpy(&ElementSizeBytes, l->fncargs + chars_read, \
+          sizeof(ElementSizeBytes));
       chars_read += sizeof(ElementSizeBytes);
-      cuMemAllocPitch_v2(devPtr, pitch, width, height, ElementSizeBytes);
+      CUresult ret = cuMemAllocPitch_v2(devPtr, pitch, width, height, \
+          ElementSizeBytes);
+      // printf("ret = %d\n", ret);
+      assert(ret == CUDA_SUCCESS);
       break;
     }
     case GENERATE_ENUM(cudaDeviceSynchronize):
     {
+      // printf("replaying __cudaRegisterFunction\n");
       // no arguments to read from buffer
-      cudaDeviceSynchronize();
+      cudaError_t ret = cudaDeviceSynchronize();
+      // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
-    //sth about cudaStreamCreate
-    //if it is used in a program it will affect
-    //the deterministism of cudaMalloc
-    //mrCUDA
+    // sth about cudaStreamCreate
+    // if it is used in a program it will affect
+    // the deterministism of cudaMalloc
+    // mrCUDA
     case GENERATE_ENUM(cudaStreamCreate):
     {
       cudaStream_t *pStream;
@@ -907,7 +996,7 @@ void replayAPI(CudaCallLog_t *l)
     case GENERATE_ENUM(cuTexObjectDestroy):
     {
       CUtexObject pTexObject;
-      memcpy(&pTexObject, l->fncargs + chars_read,sizeof(pTexObject));
+      memcpy(&pTexObject, l->fncargs + chars_read, sizeof(pTexObject));
       chars_read += sizeof(pTexObject);
       cuTexObjectDestroy(pTexObject);
       break;
@@ -1119,11 +1208,13 @@ void replayAPI(CudaCallLog_t *l)
       chars_read += sizeof(pHandle);
 
       CUDA_ARRAY3D_DESCRIPTOR* pMipmappedArrayDesc;
-      memcpy(&pMipmappedArrayDesc, l->fncargs + chars_read, sizeof(pMipmappedArrayDesc));
+      memcpy(&pMipmappedArrayDesc, l->fncargs + chars_read, \
+          sizeof(pMipmappedArrayDesc));
       chars_read += sizeof(pMipmappedArrayDesc);
 
       unsigned int numMipmapLevels;
-      memcpy(&numMipmapLevels, l->fncargs + chars_read, sizeof(numMipmapLevels));
+      memcpy(&numMipmapLevels, l->fncargs + chars_read, \
+          sizeof(numMipmapLevels));
       chars_read += sizeof(numMipmapLevels);
       cuMipmappedArrayCreate(pHandle, pMipmappedArrayDesc, numMipmapLevels);
       break;
@@ -1170,18 +1261,28 @@ void replayAPI(CudaCallLog_t *l)
       // JASSERT(false)(op).Text("Replaying unknown op code");
   }
 }
-//getter for fatCubinHandle generated by replayed __cudaRegisterFatBinary
+// getter for fatCubinHandle generated by replayed __cudaRegisterFatBinary
 void** fatHandle(){
-	return new_fatCubinHandle;
+  return new_fatCubinHandle;
 }
 // This function iterates over the CUDA calls log and calls the given
 // function on each call log object
 // void logs_read_and_apply(void (*apply)(CudaCallLog_t *l))
 void logs_read_and_apply()
-{ 
+{
   GetCudaCallsLogFptr_t fnc = (GetCudaCallsLogFptr_t)uhInfo.cudaLogVectorFptr;
+  // printf("fnc = %p\n", fnc);
   std::vector<CudaCallLog_t>& cudaCallsLog = fnc();
+  // printf("fnc = %p\n", &cudaCallsLog);
+
+  //  cudaError_t ret = cudaDeviceReset();
+  // printf("ret = %s\n", cudaGetErrorString(ret));
+
   for (auto it = cudaCallsLog.begin(); it != cudaCallsLog.end(); it++) {
+    // printf("it.size = %lu\n", it->size);
+    // Cuda_Fncs_t op;
+    // memcpy(&op, it->fncargs, sizeof op);
+    // printf("op = %d\n", op);
     replayAPI(&(*it));
   }
 }
