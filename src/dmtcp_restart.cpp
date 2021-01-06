@@ -134,7 +134,7 @@ int coord_port = UNINITIALIZED_PORT;
 string thePortFile;
 
 CoordinatorMode allowedModes = COORD_ANY;
-static bool runMtcpSplitProcess = true;
+static bool runMtcpSplitProcess = false;
 
 static void setEnvironFd();
 static void runMtcpRestart(int is32bitElf, int fd, ProcessInfo *pInfo);

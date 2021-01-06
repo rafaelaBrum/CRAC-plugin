@@ -541,6 +541,8 @@ setupUpperHalfInfo()
   uhInfo.uhEndofHeap = (void *)func();
   uhInfo.lhPagesRegion = (void *)lh_ckpt_mem_addr;
   uhInfo.cudaLogVectorFptr = (void *)&getCudaCallsLog;
+  // printf("&getCudaCallsLog = %p - getCudaCallsLog = %p\n", \
+  //     uhInfo.cudaLogVectorFptr, getCudaCallsLog);
   // FIXME: We'll just write out the uhInfo object to a file; the lower half
   // will read this file to figure out the information. This is ugly
   // but will work for now.
