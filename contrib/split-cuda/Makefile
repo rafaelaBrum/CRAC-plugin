@@ -54,7 +54,7 @@ KERNEL_LOADER_BIN=kernel-loader.exe
 
 # variables related to small cuda application (target.c)
 TARGET_OBJS=target.o
-TARGET_BIN=target.exe
+TARGET_BIN=target.dummy.exe
 
 # variables related to autogen code
 AUTOGEN_OBJS=autogen/cuda_autogen_wrappers.o
@@ -120,7 +120,8 @@ ${TARGET_OBJS}: test/target.c
 	${NVCC} ${INCLUDE_FLAGS} ${NVCC_OPTFLAGS} -c $< -o test/$@
 
 ${TARGET_BIN}: ${TARGET_OBJS}
-	${LD} test/$< -o test/$@ -L. -l${WRAPPER_LIB}
+	${LD} test/$< -o test/$@ -L. -l${WRAPPER_LIB};
+	${NVCC} -g test/$< -lcudart -o test/target.exe
 
 
 # Apparently, Nvidia libraries don't like -pie; so, we are forced

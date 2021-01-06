@@ -148,6 +148,7 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
       // printf("Display pages map:\n");
       // display_map();
       // printf("\n");
+      break;
     }
     case GENERATE_ENUM(cuMemAlloc_v2):
     {
@@ -1268,7 +1269,7 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
   // lets use reserve for Now...
   // cudaCallsLog.resize(log.size);
   // printf("start cudaCallsLog.reserve()\n");
-  cudaCallsLog.reserve(50000);
+  cudaCallsLog.reserve(500);
   // printf("done cudaCallsLog.reserve()\n");
   // printf("start cudaCallsLog.push_back(log)\n");
   cudaCallsLog.push_back(log);

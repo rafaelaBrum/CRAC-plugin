@@ -64,7 +64,7 @@ void replayAPI(CudaCallLog_t *l)
       memcpy(&len, l->fncargs + chars_read, sizeof len);
       void *newDevPtr = NULL;
       // printf("cudaMalloc(&newDevPtr, %lu)\n", len);
-      cudaError_t ret = cudaMalloc((void **) &newDevPtr, len);
+      cudaError_t ret = cudaMalloc(&newDevPtr, len);
       // printf("ret = %s\n", cudaGetErrorString(ret));
       assert(ret == cudaSuccess);
 
@@ -141,12 +141,12 @@ void replayAPI(CudaCallLog_t *l)
       // printf("replaying cudaFree\n");
       void *devPtr;
       memcpy(&devPtr, l->fncargs + chars_read, sizeof devPtr);
-      if(devPtr != NULL)
-      {
+      // if(devPtr != NULL)
+      // {
         cudaError_t ret = cudaFree(devPtr);
         // printf("ret = %s\n", cudaGetErrorString(ret));
         assert(ret == cudaSuccess);
-      }
+      // }
       // JASSERT(ret == cudaSuccess) ("cudaFree replay failed!");
       break;
     }
@@ -156,7 +156,7 @@ void replayAPI(CudaCallLog_t *l)
       // args
       CUdeviceptr devPtr;
       memcpy(&devPtr, l->fncargs + chars_read, sizeof devPtr);
-      cudaError_t ret = cudaFree(&devPtr);
+      cudaError_t ret = cudaFree_v2(&devPtr);
       // printf("ret = %s\n", cudaGetErrorString(ret));
       assert(ret == cudaSuccess);
       // JASSERT(ret == cudaSuccess) ("cudaFree replay failed!");
@@ -520,8 +520,8 @@ void replayAPI(CudaCallLog_t *l)
       memcpy(&texObject, l->fncargs + chars_read, sizeof(texObject));
 
       cudaError_t ret = cudaDestroyTextureObject(texObject);
-      assert(ret == cudaSuccess);
       // printf("ret = %s\n", cudaGetErrorString(ret));
+      assert(ret == cudaSuccess);
       break;
     }
     case GENERATE_ENUM(cudaBindTextureToArray):

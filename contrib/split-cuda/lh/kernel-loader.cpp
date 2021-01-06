@@ -183,6 +183,7 @@ main(int argc, char *argv[], char **environ)
     }
     // void * cptr=NULL;
     // cudaMalloc(&cptr, 436*sizeof(char));
+
     // testing
     // lhInfo.new_getFatCubinHandle=(void *)&getCubinHandle;
     //
@@ -194,7 +195,9 @@ main(int argc, char *argv[], char **environ)
     */
     restoreCheckpointImg(ckptFd);
     readUhInfoAddr();
+    
     logs_read_and_apply();
+    
     copy_lower_half_data();
     returnTodmtcp();
     // Following line should not be reached.
@@ -636,7 +639,7 @@ copy_lower_half_data() {
       case (CUDA_MALLOC_PAGE):
       {
         // copy back the actual data
-cudaMemcpy(dest_addr, ((VA)lhpages_addr+count), size, cudaMemcpyHostToDevice);
+        cudaMemcpy(dest_addr, ((VA)lhpages_addr+count), size, cudaMemcpyHostToDevice);
         count += size;
         break;
       }
