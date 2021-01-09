@@ -156,9 +156,9 @@ void replayAPI(CudaCallLog_t *l)
       // args
       CUdeviceptr devPtr;
       memcpy(&devPtr, l->fncargs + chars_read, sizeof devPtr);
-      cudaError_t ret = cudaFree_v2(&devPtr);
-      // printf("ret = %s\n", cudaGetErrorString(ret));
-      assert(ret == cudaSuccess);
+      CUresult ret = cuMemFree_v2(devPtr);
+      // printf("ret = %d\n", ret);
+      assert(ret == CUDA_SUCCESS);
       // JASSERT(ret == cudaSuccess) ("cudaFree replay failed!");
       break;
     }
