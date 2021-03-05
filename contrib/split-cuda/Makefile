@@ -1,7 +1,7 @@
 # NOTE: Update the following variables for your system
 CC=/usr/bin/gcc-8
 CXX=/usr/bin/g++-8
-NVCC=/usr/local/cuda/bin/nvcc
+NVCC=/usr/local/cuda-10.0/bin/nvcc
 LD=${CXX}
 RTLD_PATH=/lib64/ld-linux-x86-64.so.2
 CUDA_INCLUDE_PATH=/usr/local/cuda/include/
@@ -121,14 +121,14 @@ ${TARGET_OBJS}: test/target.c
 
 ${TARGET_BIN}: ${TARGET_OBJS}
 	${LD} test/$< -o test/$@ -L. -l${WRAPPER_LIB};
-	${NVCC} -g test/$< -lcudart -o test/target.exe
+	${NVCC} -g test/$< -o test/target.exe
 
 
 # Apparently, Nvidia libraries don't like -pie; so, we are forced
 # to link the kernel loader (which is really just emulating the lower
 # half) to a fixed address (0x800000)
 ${KERNEL_LOADER_BIN}: ${KERNEL_LOADER_OBJS}
-	${NVCC} ${NVCC_FLAGS}  $^ -o $@ -lcuda -ldl  -lcusparse -lcusolver -lcublas
+	${NVCC} ${NVCC_FLAGS} $^ -o $@ -lcuda -ldl -lcublas -lcusparse -lcusolver
 
 vi vim:
 	vim ${FILE}.cpp

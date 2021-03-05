@@ -87,7 +87,7 @@ safeLoadLib(const char *name)
     //   http://sourceware.org/gdb/onlinedocs/gdb/Separate-Debug-Files.html
     fprintf(stderr, "Debug symbols for interpreter in: %s\n", buf);
   }
-  // printf("%s\n", buf);
+  printf("%s\n", buf);
   int debug_ld_so_fd = open(buf, O_RDONLY);
   assert(debug_ld_so_fd != -1);
   mmap_offset = get_symbol_offset(debug_ld_so_fd, buf, "mmap");
@@ -242,7 +242,7 @@ map_elf_interpreter_load_segment(int fd, Elf64_Phdr phdr, void *ld_so_addr)
   // phdr.p_memsz = phdr.p_memsz + (vaddr - phdr.p_vaddr);
   // NOTE:  base_address is 0 for first load segment
   if (first_time) {
-    printf("size %d \n", (int)phdr.p_filesz);
+	  printf("size %d \n", (int)phdr.p_filesz);
     phdr.p_vaddr += (unsigned long long)ld_so_addr;
     size = 0x27000;
   } else {

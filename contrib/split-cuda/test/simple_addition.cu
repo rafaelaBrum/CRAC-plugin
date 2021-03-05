@@ -34,17 +34,13 @@ int main(int argc, char **argv)
 	printf("device 1: %d \n", *cuda_c);
 	ret = cudaMemcpy(cuda_c2, cuda_c, sizeof(int), cudaMemcpyDeviceToDevice);
 	printf("error: %s \n", cudaGetErrorString(ret));	
-        printf("device 1: %d \n", *cuda_c);
-        printf("device 2: %d \n", *cuda_c2);
-
-  printf("Sleep\n");
-  sleep(100);
-  printf("Back from sleep\n");
+//        printf("device 1: %d \n", *cuda_c);
+//        printf("device 2: %d \n", *cuda_c2);
 
 	cudaDeviceSynchronize();
 	ret = cudaMemcpy(&c, cuda_c2, sizeof(int), cudaMemcpyDeviceToHost);
 	cudaDeviceSynchronize();
-	printf("error: %s \n", cudaGetErrorString(ret));
+	//printf("error: %s \n", cudaGetErrorString(ret));
 	printf("device 1: %d \n", *cuda_c);
 	cudaDeviceSynchronize();
 	printf("device 2: %d \n", *cuda_c2);

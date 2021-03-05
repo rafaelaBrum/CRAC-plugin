@@ -2276,6 +2276,5 @@ cuGraphicsUnregisterResource ( CUgraphicsResource resource );
 Unregisters a graphics resource for access by CUDA.
 */;
 
-@LogReplay;
 void                                                                            
 __cudaRegisterFatBinaryEnd(void **fatCubinHandle);

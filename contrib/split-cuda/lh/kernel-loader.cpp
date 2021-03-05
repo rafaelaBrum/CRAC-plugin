@@ -21,7 +21,6 @@
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
-#define CUDA 1
 #endif
 #include <assert.h>
 #include <dlfcn.h>
@@ -158,8 +157,7 @@ printRestartUsage()
 {
   DLOG(ERROR, "Usage: ./kernel-loader --restore /path/to/ckpt.img\n");
 }
-// extern "C" void** __cudaRegisterFatBinary(void *fatCubin);
-// extern void ** getCubinHandle();
+
 // #define shift argv++; argc--;
 int
 main(int argc, char *argv[], char **environ)
@@ -181,12 +179,6 @@ main(int argc, char *argv[], char **environ)
       DLOG(ERROR, "Failed to set up lhinfo for the upper half. Exiting...\n");
       exit(-1);
     }
-    // void * cptr=NULL;
-    // cudaMalloc(&cptr, 436*sizeof(char));
-
-    // testing
-    // lhInfo.new_getFatCubinHandle=(void *)&getCubinHandle;
-    //
     /*
      restoreCheckpoint will
      1. read the MtcpHeader
@@ -195,9 +187,7 @@ main(int argc, char *argv[], char **environ)
     */
     restoreCheckpointImg(ckptFd);
     readUhInfoAddr();
-    
     logs_read_and_apply();
-    
     copy_lower_half_data();
     returnTodmtcp();
     // Following line should not be reached.
@@ -206,6 +196,8 @@ main(int argc, char *argv[], char **environ)
   runRtld();
   return 0;
 }
+
+
 // Returns the /proc/self/stat entry in the out string (of length len)
 static void
 getProcStatField(enum Procstat_t type, char *out, size_t len)
@@ -402,7 +394,7 @@ deepCopyStack(void *newStack, const void *origStack, size_t len,
             (uintptr_t)info->phdr,
             (uintptr_t)info->entryPoint);
 
-// printf("newArgv[-2]: %lu \n", (unsigned long)&newArgv[0]);
+printf("newArgv[-2]: %lu \n", (unsigned long)&newArgv[0]);
 
   // We clear out the rest of the new stack region just in case ...
   memset(newStack, 0, (size_t)((uintptr_t)&newArgv[-2] - (uintptr_t)newStack));
@@ -461,12 +453,8 @@ createNewStackForRtld(const DynObjInfo_t *info)
   unsigned long newStackOffset = origStackOffset;
   void *newStackEnd = (void*)((unsigned long)newStack + newStackOffset);
 
-// printf("origStack: %lu ", (unsigned long)stack.addr);
-// printf("origStackOffset: %lu ", (unsigned long)origStackOffset);
-// printf("OrigStackEnd: %lu \n", (unsigned long)origStackEnd);
-// printf("newStack: %lu ", (unsigned long)newStack);
-// printf("newStackOffset: %lu ", (unsigned long)newStackOffset);
-// printf("newStackEnd: %lu \n", (unsigned long)newStackEnd);
+printf("origStack: %lu origStackOffset: %lu OrigStackEnd: %lu \n", (unsigned long)stack.addr, (unsigned long)origStackOffset, (unsigned long)origStackEnd);
+printf("newStack: %lu newStackOffset: %lu newStackEnd: %lu \n", (unsigned long)newStack, (unsigned long)newStackOffset, (unsigned long)newStackEnd);
 
   // 2. Deep copy stack
   newStackEnd = deepCopyStack(newStack, stack.addr, stack.size,
@@ -559,7 +547,6 @@ setupLowerHalfInfo()
   lhInfo.lhDlsym = (void *)&lhDlsym;
   lhInfo.lhMmapListFptr = (void *)&getMmappedList;
   lhInfo.uhEndofHeapFptr = (void *)&getEndOfHeap;
-  lhInfo.getFatCubinHandle = (void *)&fatHandle;
   // lhInfo.lhDeviceHeap = (void *)ROUND_DOWN(getDeviceHeapPtr());
   // lhInfo.lhGetDeviceHeapFptr = (void *)&getDeviceHeapPtr;
   // lhInfo.lhCopyToCudaPtrFptr = (void *)&copyToCudaPtr;

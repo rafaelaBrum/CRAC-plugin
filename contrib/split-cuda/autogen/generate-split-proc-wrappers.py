@@ -162,8 +162,6 @@ def handleComment(decl_oneline):
     abort_decl(decl_oneline, "Comment not closed; missing ending '*/'")
 
 def emit_wrapper(decl, ret_type, fnc, args, arg_vars, logging):
-  fat = False;  
-  unreg= False;  
   if re.match(r"var[1-9]\b", ' '.join(arg_vars)):
     decl = add_anonymous_vars_to_decl(decl, args, arg_vars);
   # if arg_vars contains "varX", then "var2" needs to be inserted before
@@ -195,45 +193,27 @@ def emit_wrapper(decl, ret_type, fnc, args, arg_vars, logging):
     print("  " + ret_type + ' ret_val ' + init_val)
   #  print("  fnc_ptr_t fnc_ptr = get_fnc_ptr(\"" + fnc + "\");")
   if fnc == "__cudaRegisterFatBinary":
-    fat= True;
+    print("  global_fatCubin = fatCubin;")
   elif fnc == "__cudaUnregisterFatBinary":
-    print("  fatHandle_t fat= NULL;")
-    print(" // fat = (fatHandle_t)lhInfo.new_getFatCubinHandle;")
-    print("  fat = (fatHandle_t)lhInfo.getFatCubinHandle;")
-    unreg= True;
+    print("  fatCubinHandle = __cudaRegisterFatBinary(global_fatCubin);")
+
   print("  DMTCP_PLUGIN_DISABLE_CKPT();")
-  if (unreg):
-      print("  if (fat() == NULL) {")
-      print("   fatCubinHandle = global_fatCubinHandle;")
-      print("  } else {")
-      print("   fatCubinHandle = fat();")
-      print("  }");
-      print("  JUMP_TO_LOWER_HALF(lhInfo.lhFsAddr);")
-      print("  REAL_FNC(" + strip_fnc(fnc) + ")(" + " fatCubinHandle " + ");") 
-      print("  RETURN_TO_UPPER_HALF();")
-      if(logging):
-        print("/* Insert logging code here */")
-        print("  logAPI(Cuda_Fnc_"+ fnc + ", " +  "fatCubinHandle" + ");")
-  else:
-   print("  JUMP_TO_LOWER_HALF(lhInfo.lhFsAddr);")
-   if ret_type != "void":
+  print("  JUMP_TO_LOWER_HALF(lhInfo.lhFsAddr);")
+  if ret_type != "void":
     print("  ret_val = "
           "REAL_FNC(" + strip_fnc(fnc) + ")(" + ", ".join(arg_vars) + ");")
     stub_lib.write("  " + ret_type + ' ret_val ' + init_val + "\n")
-   else:
+  else:
     print("  REAL_FNC(" + strip_fnc(fnc) + ")(" + ", ".join(arg_vars) + ");")
 
-   print("  RETURN_TO_UPPER_HALF();")
+  print("  RETURN_TO_UPPER_HALF();")
 
-   if (logging):
+  if (logging):
     print("/* Insert logging code here */")
     if ret_type != "void":
       print("  logAPI(Cuda_Fnc_"+ fnc + ", " +  ", ".join(arg_vars) + ", ret_val);")
     else:
       print("  logAPI(Cuda_Fnc_"+ fnc + ", " +  ", ".join(arg_vars) + ");")
-  if (fat):
-    print("  global_fatCubinHandle = ret_val;")
-    fat= False;
   print("  DMTCP_PLUGIN_ENABLE_CKPT();")
 
 # return code

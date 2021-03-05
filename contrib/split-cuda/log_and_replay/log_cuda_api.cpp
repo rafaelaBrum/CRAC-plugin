@@ -139,9 +139,7 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
       // printf(", %p, %lu)\n", &size, sizeof size);
       chars_wrote += sizeof (size);
       // printf("update chars_wrote to %lu\n", chars_wrote);
-
       // printf("cudaMalloc de %lu bytes\n", size);
-
       // update the map
       lhckpt_pages_t page = {CUDA_MALLOC_PAGE, *pointer, size};
       lh_pages_map[*pointer] = page;
@@ -346,17 +344,6 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
       memcpy(log.results, res, sizeof (*res));
       break;
     }
-    // new
-    case GENERATE_ENUM(__cudaRegisterFatBinaryEnd):
-    {
-      // args
-      void **fatCubinHandle = va_arg(arglist, void **);
-      memcpy(buf + chars_wrote, &fatCubinHandle, sizeof (void *));
-      chars_wrote += sizeof (void *);
-
-      break;
-    }
-
     case GENERATE_ENUM(__cudaUnregisterFatBinary):
     {
       // args
@@ -1253,16 +1240,13 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
   // printf("starting JALLOC_MALLOC(%lu)\n", chars_wrote);
   log.fncargs = (char *)JALLOC_MALLOC(chars_wrote);
   // printf("done JALLOC_MALLOC(%lu)\n", log.res_size + 1);
-
   // printf("starting memcpy(log.fncargs, %p, %lu)\n", &buf, chars_wrote);
   memcpy(log.fncargs, buf, chars_wrote);
   // printf("done memcpy(log.fncargs, %p, %lu)\n", &buf, chars_wrote);
   log.size = chars_wrote;
-
   // printf("cudaCallsLog.capacity = %lu - ", cudaCallsLog.capacity());
   // printf("cudaCallsLog.size = %lu\n", cudaCallsLog.size());
   // printf("cudaCallsLog.max_size = %lu\n", cudaCallsLog.max_size());
-
   // push_back fails/segfaults when a lot of cuda Calls are made
   // To avoid the segfault we can resize cudaCallsLog
   // However this will be destructive at restart;
