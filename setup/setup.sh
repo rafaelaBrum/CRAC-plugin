@@ -12,16 +12,24 @@ echo " ----------------------------
    Installing build-essential package
  ----------------------------"
 sudo apt install build-essential
-if [ ! -f "cuda_10.2.89_440.33.01_linux.run" ]; then
+if [ ! -f "cuda_10.0.130_410.48_linux.run" ]; then
     echo " ----------------------------
    Downloading CUDA install file
  ----------------------------"
-    wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda_10.2.89_440.33.01_linux.run
+    wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux
 fi
-echo " ----------------------------
-   Installing CUDA driver e toolkit (10.2)
+if [ ! -f "cuda_10.0.130.1_linux.run" ]; then
+    echo " ----------------------------
+   Downloading CUDA patch install file
  ----------------------------"
-sudo sh cuda_10.2.89_440.33.01_linux.run
+    wget http://developer.download.nvidia.com/compute/cuda/10.0/Prod/patches/1/cuda_10.0.130.1_linux.run
+fi
+
+echo " ----------------------------
+   Installing CUDA driver e toolkit (10.0)
+ ----------------------------"
+sudo sh cuda_10.0.130_410.48_linux.run
+sudo sh cuda_10.0.130.1_linux.run
 echo " ----------------------------
    Installing gcc-8 and g++-8 package
  ----------------------------"
