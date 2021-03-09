@@ -10,11 +10,11 @@ static void processArgs(int, const char** );
 int
 main(int argc, char **argv)
 {
-  int i = 0;
+//  int i = 0;
   void *cuda_ptr1 = NULL;
   void *cuda_ptr2 = NULL;
   void *cuda_ptr3 = NULL;
-  void *cuda_ptr4 = NULL;
+//  void *cuda_ptr4 = NULL;
 
   processArgs(argc, (const char**)argv);
 

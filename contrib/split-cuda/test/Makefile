@@ -4,33 +4,43 @@ CXX=g++
 NVCC=/usr/local/cuda-10.0/bin/nvcc
 LD=${CXX}
 CUDA_INCLUDE_PATH=/usr/local/cuda-10.0/include/
+CRAC_FOLDER=/home/rafaela/CRAC-plugin_code_paper/contrib/split-cuda/
 
 
 # Wrapper library against which the target application will be linked.
 WRAPPER_LIB=cuda_wrappers
 
-INCLUDE_FLAGS= -I/home/twinkle/mpich-install/include
+INCLUDE_FLAGS= 
 WARNING_FLAGS=-Wall -Wno-deprecated-declarations -Werror
 NVCC_FLAGS=-ccbin=/usr/bin/g++-7 -Xcompiler '-g3 -O0 $(WARNING_FLAGS)'
 
-FILES=simple_addition malloc_across_kernel read_device_var read_uvm_var \
-      rw_device_var rw_dev_array texture_test uvm_var uvm_args \
-      uvm_output_args uvm_var_managed texture_object_test 
+FILES=simple_addition/simple_addition malloc_across_kernel/malloc_across_kernel \
+      read_device_var/read_device_var read_uvm_var/read_uvm_var \
+      rw_device_var/rw_device_var rw_dev_array/rw_dev_array \
+      texture_test/texture_test uvm_var/uvm_var uvm_args/uvm_args \
+      uvm_output_args/uvm_output_args uvm_var_managed/uvm_var_managed \
+      texture_object_test/texture_object_test target
 # cudaCreateChannelDesc_test cuda_plus_mpi
 
 OBJS=$(addsuffix .o, ${FILES})
 
-TESTS_DUMMY=$(addsuffix .dummy.exe, ${FILES})
+#TESTS_DUMMY=$(addsuffix .dummy.exe, ${FILES})
 TESTS=$(addsuffix .exe, ${FILES})
-LDFLAGS_DUMMY=-L.. -lcuda_wrappers
+#LDFLAGS_DUMMY=-L.. -lcuda_wrappers
 
 default: ${TESTS} ${TESTS_DUMMY}
 
 %.o: %.c
 	${NVCC} ${INCLUDE_FLAGS} ${NVCC_FLAGS} -c $< -o $@
 
+%.o: %.c
+	${NVCC} ${INCLUDE_FLAGS} ${NVCC_FLAGS} -c $< -o $@
+
 %.o: %.cu
 	${NVCC} ${INCLUDE_FLAGS} ${NVCC_FLAGS} -c $< -o $@
+
+%.exe: %.o
+	${LD} $< -o $@ -L${CRAC_FOLDER} -l${WRAPPER_LIB}
 
 %.exe: %.cu
 	$(NVCC) ${INCLUDE_FLAGS} ${NVCC_FLAGS} --cudart shared -o $@ $<
