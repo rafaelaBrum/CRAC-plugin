@@ -8,6 +8,7 @@ __device__ int incr = 10;
 __global__ void add(int a, int b, int *c)
 {
 	*c = *c+a+b+incr++;
+	printf("c = %d\n", *c);
 }
 
 int main(int argc, char **argv)
@@ -27,7 +28,7 @@ int main(int argc, char **argv)
 	cudaMemcpy(&c, cuda_c, sizeof(int), cudaMemcpyDeviceToHost);
 	cudaFree(cuda_c);
 
-	printf("%d + %d = %d\n", a, b, c);
+	printf("a = %d | b = %d | c = %d\n", a, b, c);
 
 	exit(EXIT_SUCCESS);
 }

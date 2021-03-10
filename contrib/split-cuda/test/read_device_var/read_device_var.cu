@@ -22,11 +22,11 @@ int main(int argc, char **argv)
     sleep(10);
 	add<<<1,1>>>(a, b, cuda_c);
 	int tmp = 10;
-	printf("%d + %d + %d = %d\n", a, b, tmp, c);
+	printf("%d + %d + %d = %d (before cudaMemcpy)\n", a, b, tmp, c);
 	cudaMemcpy(&c, cuda_c, sizeof(int), cudaMemcpyDeviceToHost);
 	cudaFree(cuda_c);
 
-	printf("%d + %d + %d = %d\n", a, b, tmp, c);
+	printf("%d + %d + %d = %d (after cudaMemcpy)\n", a, b, tmp, c);
 
 	exit(EXIT_SUCCESS);
 }

@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 	cudaMemcpy(&c, cuda_c, sizeof(int), cudaMemcpyDeviceToHost);
 	cudaFree(cuda_c);
 
-	printf("%d + %d +%d = %d\n", a, b, ten, c);
+	printf("%d + %d + %d = %d\n", a, b, ten, c);
 
 	exit(EXIT_SUCCESS);
 }
