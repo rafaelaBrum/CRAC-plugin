@@ -1253,7 +1253,7 @@ logAPI(Cuda_Fncs_t cuda_fnc_op, ...)
   // lets use reserve for Now...
   // cudaCallsLog.resize(log.size);
   // printf("start cudaCallsLog.reserve()\n");
-  cudaCallsLog.reserve(500);
+  cudaCallsLog.reserve(5000);
   // printf("done cudaCallsLog.reserve()\n");
   // printf("start cudaCallsLog.push_back(log)\n");
   cudaCallsLog.push_back(log);
